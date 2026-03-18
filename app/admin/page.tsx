@@ -3,7 +3,7 @@
 import { useAuth, signOut } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut, Plus, Trash2, Power, Map } from "lucide-react";
+import { Loader2, LogOut, Plus, Trash2, Power, Map, Globe } from "lucide-react";
 import { useStations } from "@/lib/hooks/useStations";
 import { toggleStationStatus } from "@/lib/firebase/db";
 import { db } from "@/lib/firebase/config";
@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newStation, setNewStation] = useState({ name: "", address: "", lat: "", lng: "" });
   const [isDiscovering, setIsDiscovering] = useState(false);
+  const [isIslandScanning, setIsIslandScanning] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -145,6 +146,86 @@ export default function AdminDashboard() {
     }
   };
 
+  const runIslandScan = async () => {
+    if (!isLoaded || !window.google) return alert("Google Maps API not loaded");
+    if (!window.confirm("This will perform a massive scan across 10 major cities in Sri Lanka and may consume a significant amount of Google Places API quota. Proceed?")) return;
+
+    setIsIslandScanning(true);
+    let totalAdded = 0;
+    
+    // Grid of major SL cities to get comprehensive island coverage
+    const cities = [
+      { name: "Colombo", lat: 6.9271, lng: 79.8612 },
+      { name: "Kandy", lat: 7.2906, lng: 80.6337 },
+      { name: "Galle", lat: 6.0535, lng: 80.2210 },
+      { name: "Jaffna", lat: 9.6615, lng: 80.0255 },
+      { name: "Anuradhapura", lat: 8.3114, lng: 80.4037 },
+      { name: "Trincomalee", lat: 8.5811, lng: 81.2330 },
+      { name: "Batticaloa", lat: 7.7170, lng: 81.6985 },
+      { name: "Kurunegala", lat: 7.4818, lng: 80.3609 },
+      { name: "Ratnapura", lat: 6.7056, lng: 80.3847 },
+      { name: "Badulla", lat: 6.9934, lng: 81.0550 }
+    ];
+
+    const service = new window.google.maps.places.PlacesService(document.createElement('div'));
+    
+    for (const city of cities) {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Delay to prevent OVER_QUERY_LIMIT
+      
+      const request = {
+        location: new window.google.maps.LatLng(city.lat, city.lng),
+        radius: 50000, // Max Places API radius (50km)
+        type: "gas_station"
+      };
+
+      try {
+        await new Promise<void>((resolve) => {
+          service.nearbySearch(request, async (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+              for (const place of results) {
+                if (!place.name || !place.geometry?.location) continue;
+                
+                const placeLat = place.geometry.location.lat();
+                const placeLng = place.geometry.location.lng();
+                
+                const exists = stations.some(s => 
+                  s.name.toLowerCase() === place.name!.toLowerCase() || 
+                  (Math.abs(s.location.lat - placeLat) < 0.001 && Math.abs(s.location.lng - placeLng) < 0.001)
+                );
+
+                if (!exists) {
+                  const defaultFuels = {
+                    petrol92: { status: "available" as const, lastUpdatedAt: "Just now" },
+                    petrol95: { status: "available" as const, lastUpdatedAt: "Just now" },
+                    diesel: { status: "available" as const, lastUpdatedAt: "Just now" },
+                    superDiesel: { status: "available" as const, lastUpdatedAt: "Just now" }
+                  };
+
+                  await addDoc(collection(db, "stations"), {
+                    name: place.name,
+                    address: place.vicinity || "Unknown Location",
+                    location: { lat: placeLat, lng: placeLng },
+                    isOpen: true,
+                    fuels: defaultFuels,
+                    updatedCount: 0
+                  });
+                  totalAdded++;
+                }
+              }
+            }
+            resolve();
+          });
+        });
+      } catch (err) {
+        console.error("Scan error at " + city.name, err);
+      }
+    }
+    
+    alert(`Island Scan Complete! Added ${totalAdded} new stations to the database.`);
+    setIsIslandScanning(false);
+    mutate();
+  };
+
   return (
     <main className="min-h-screen pb-20 p-4 sm:p-8 relative">
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
@@ -171,14 +252,22 @@ export default function AdminDashboard() {
               Registered Stations 
               <span className="text-xs px-2.5 py-1 bg-white/10 text-white rounded-full font-mono">{stations.length}</span>
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               <button 
                 onClick={discoverStations}
-                disabled={isDiscovering || !isLoaded}
+                disabled={isDiscovering || isIslandScanning || !isLoaded}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-all border border-white/20 disabled:opacity-50"
               >
                 {isDiscovering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Map className="w-4 h-4" />} 
-                {isDiscovering ? "Scanning..." : "Auto-Discover Nearby"}
+                {isDiscovering ? "Scanning..." : "Scan Nearby"}
+              </button>
+              <button 
+                onClick={runIslandScan}
+                disabled={isIslandScanning || isDiscovering || !isLoaded}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-sm font-bold hover:bg-purple-500/30 transition-all disabled:opacity-50"
+              >
+                {isIslandScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />} 
+                {isIslandScanning ? "Sweeping Island..." : "Island-Wide Scan"}
               </button>
               <button 
                 onClick={() => setShowAddForm(!showAddForm)}
