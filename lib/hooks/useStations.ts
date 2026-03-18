@@ -155,7 +155,7 @@ export function useStations(userLat?: number, userLng?: number, searchQuery?: st
       ];
     }
   } else {
-    stations = stations.map(s => ({ ...s, distance: 0, isNearest: false })).sort((a, b) => a.name.localeCompare(b.name));
+    stations = stations.map(s => ({ ...s, distance: 0, isNearest: false })).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   }
 
   return { stations, isLoading, isError: error, mutate };
