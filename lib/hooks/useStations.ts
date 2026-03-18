@@ -7,7 +7,7 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
   const firestoreStations = await getStations();
   
   // Helper to filter out LP Gas shops
-  const isLPGas = (name: string) => /litro|laugfs|gas center|gas shop/i.test(name);
+  const isLPGas = (name: string) => /litro|laugfs|gas center|gas shop|lp gas|domestic gas|gas point|gas showroom/i.test(name);
   
   // Helper to merge Google results with Firestore
   const mergeResults = (results: google.maps.places.PlaceResult[]) => {
