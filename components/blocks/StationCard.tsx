@@ -30,7 +30,7 @@ interface StationCardProps {
   station: StationData;
 }
 
-import { TimeAgo } from "./TimeAgo";
+
 
 const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
   <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
