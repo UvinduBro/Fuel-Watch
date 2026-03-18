@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, updateDoc, addDoc, query, writeBatch, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, updateDoc, addDoc, query, writeBatch, setDoc, orderBy, limit } from "firebase/firestore";
 import { db } from "./config";
 import { StationData } from "@/components/blocks/StationCard";
 import { FuelStatus } from "@/components/blocks/FuelStatusBadge";
@@ -145,5 +145,55 @@ export const toggleStationStatus = async (stationId: string, isOpen: boolean) =>
   } catch (error) {
     console.error("Error toggling status:", error);
     throw error;
+  }
+};
+export const getRecentUpdates = async (count: number = 50) => {
+  try {
+    const q = query(
+      collection(db, "updates"),
+      orderBy("createdAt", "desc"),
+      limit(count)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error fetching recent updates:", error);
+    return [];
+  }
+};
+
+export const getAnalyticsSummary = async () => {
+  try {
+    const stations = await getStations();
+    const updatesQ = query(collection(db, "updates"));
+    const updatesSnapshot = await getDocs(updatesQ);
+    const totalUpdates = updatesSnapshot.size;
+
+    // Fuel Status Distribution
+    const distribution = {
+      petrol92: { available: 0, low: 0, out: 0, none: 0 },
+      petrol95: { available: 0, low: 0, out: 0, none: 0 },
+      diesel: { available: 0, low: 0, out: 0, none: 0 },
+      superDiesel: { available: 0, low: 0, out: 0, none: 0 },
+    };
+
+    stations.forEach(s => {
+      Object.keys(distribution).forEach(fuel => {
+        const status = s.fuels[fuel as keyof typeof s.fuels]?.status || "none";
+        distribution[fuel as keyof typeof distribution][status as keyof typeof distribution['petrol92']]++;
+      });
+    });
+
+    return {
+      totalStations: stations.length,
+      totalUpdates,
+      distribution
+    };
+  } catch (error) {
+    console.error("Error generating analytics:", error);
+    return null;
   }
 };

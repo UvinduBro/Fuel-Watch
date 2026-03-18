@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export interface Coordinates {
   lat: number;
@@ -7,6 +7,7 @@ export interface Coordinates {
 
 export function useGeolocation() {
   const [location, setLocation] = useState<Coordinates | null>(null);
+  const locationRef = useRef<Coordinates | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,10 +30,10 @@ export function useGeolocation() {
 
       // Distance check to prevent jitter (Haversine formula)
       const R = 6371e3; // meters
-      const lat1 = (location?.lat || 0) * Math.PI / 180;
+      const lat1 = (locationRef.current?.lat || 0) * Math.PI / 180;
       const lat2 = newLat * Math.PI / 180;
-      const dLat = (newLat - (location?.lat || 0)) * Math.PI / 180;
-      const dLon = (newLng - (location?.lng || 0)) * Math.PI / 180;
+      const dLat = (newLat - (locationRef.current?.lat || 0)) * Math.PI / 180;
+      const dLon = (newLng - (locationRef.current?.lng || 0)) * Math.PI / 180;
 
       const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
                 Math.cos(lat1) * Math.cos(lat2) *
@@ -41,8 +42,10 @@ export function useGeolocation() {
       const distance = R * c;
 
       // Only update if moved more than 5 meters or if it's the first fix
-      if (!location || distance > 5) {
-        setLocation({ lat: newLat, lng: newLng });
+      if (!locationRef.current || distance > 5) {
+        const newLoc = { lat: newLat, lng: newLng };
+        locationRef.current = newLoc;
+        setLocation(newLoc);
         setError(null);
         setLoading(false);
       }
