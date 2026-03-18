@@ -3,12 +3,23 @@ import {
   GoogleAuthProvider, 
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   User
 } from "firebase/auth";
 import { auth } from "./config";
 import { useEffect, useState } from "react";
 
 const googleProvider = new GoogleAuthProvider();
+
+export const signInWithEmail = async (email: string, pass: string) => {
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, pass);
+    return result.user;
+  } catch (error) {
+    console.error("Error signing in with Email", error);
+    throw error;
+  }
+};
 
 export const signInWithGoogle = async () => {
   try {
