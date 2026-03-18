@@ -376,7 +376,7 @@ export default function AdminDashboard() {
                         await import("@/lib/firebase/db").then(m => m.clearAllStationData());
                         alert("Database cleared successfully.");
                         mutate();
-                    } catch (e) {
+                    } catch {
                         alert("Error clearing data.");
                     }
                 }
