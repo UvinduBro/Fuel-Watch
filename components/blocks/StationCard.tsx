@@ -68,11 +68,23 @@ export function StationCard({ station }: StationCardProps) {
              </span>
           )}
         </div>
-        <div className={cn(
-          "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-extrabold border shadow-sm backdrop-blur-md",
-          station.isOpen ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"
-        )}>
-          <Clock className="w-3 h-3" /> {station.isOpen ? "Open now" : "Closed"}
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-extrabold border shadow-sm backdrop-blur-md",
+            station.isOpen ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"
+          )}>
+            <Clock className="w-3 h-3" /> {station.isOpen ? "Open now" : "Closed"}
+          </div>
+          {station.queue && (
+             <div className={cn(
+               "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-extrabold border shadow-sm backdrop-blur-md",
+               station.queue === "none" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : 
+               station.queue === "medium" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : 
+               "bg-rose-500/10 text-rose-500 border-rose-500/20"
+             )}>
+               🚦 {station.queue.toUpperCase()}
+             </div>
+          )}
         </div>
       </div>
 
@@ -84,10 +96,10 @@ export function StationCard({ station }: StationCardProps) {
 
       {/* Fuel Rows */}
       <div className="flex flex-col gap-2.5 mt-2">
-        <FuelRow label="Petrol 92" fuel={station.fuels.petrol92} />
-        <FuelRow label="Petrol 95" fuel={station.fuels.petrol95} />
-        <FuelRow label="Diesel" fuel={station.fuels.diesel} />
-        <FuelRow label="Super Diesel" fuel={station.fuels.superDiesel} />
+        <FuelRow label="Petrol 92" fuel={station.updatedCount > 0 ? station.fuels.petrol92 : { status: "none", lastUpdatedAt: "No Data" }} />
+        <FuelRow label="Petrol 95" fuel={station.updatedCount > 0 ? station.fuels.petrol95 : { status: "none", lastUpdatedAt: "No Data" }} />
+        <FuelRow label="Diesel" fuel={station.updatedCount > 0 ? station.fuels.diesel : { status: "none", lastUpdatedAt: "No Data" }} />
+        <FuelRow label="Super Diesel" fuel={station.updatedCount > 0 ? station.fuels.superDiesel : { status: "none", lastUpdatedAt: "No Data" }} />
       </div>
 
       {/* Footer Details */}
@@ -96,12 +108,6 @@ export function StationCard({ station }: StationCardProps) {
           <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 sm:w-4 sm:w-4 text-blue-400" /> {station.updatedCount || 0} people updated this shed
           </div>
-          {station.queue && (
-            <div className="text-xs font-bold text-muted-foreground flex flex-col items-start gap-1">
-               <div className="flex items-center gap-1.5">🚦 Queue: <span className={cn("px-2 py-0.5 rounded-md", station.queue === "none" ? "bg-emerald-500/20 text-emerald-500" : station.queue === "medium" ? "bg-amber-500/20 text-amber-500" : "bg-rose-500/20 text-rose-500")}>{station.queue.toUpperCase()}</span></div>
-               {station.queueUpdatedAt && <TimeAgo dateString={station.queueUpdatedAt} />}
-            </div>
-          )}
         </div>
         
         <div className="flex gap-2 w-full sm:w-auto">
