@@ -1,0 +1,274 @@
+"use client";
+
+import { useAuth, signOut } from "@/lib/firebase/auth";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2, LogOut, Plus, Trash2, Power, Map } from "lucide-react";
+import { useStations } from "@/lib/hooks/useStations";
+import { toggleStationStatus, db } from "@/lib/firebase/db";
+import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { useLoadScript } from "@react-google-maps/api";
+
+const libraries: "places"[] = ["places"];
+
+export default function AdminDashboard() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const { stations, isLoading, mutate } = useStations();
+  
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries,
+  });
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newStation, setNewStation] = useState({ name: "", address: "", lat: "", lng: "" });
+  const [isDiscovering, setIsDiscovering] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+
+  const handleToggleOpen = async (stationId: string, currentStatus: boolean) => {
+    await toggleStationStatus(stationId, !currentStatus);
+    mutate();
+  };
+
+  const handleAddStation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStation.name || !newStation.address || !newStation.lat || !newStation.lng) return;
+
+    try {
+      const defaultFuels = {
+        petrol92: { status: "available" as const, lastUpdatedAt: "Just now" },
+        petrol95: { status: "available" as const, lastUpdatedAt: "Just now" },
+        diesel: { status: "available" as const, lastUpdatedAt: "Just now" },
+        superDiesel: { status: "available" as const, lastUpdatedAt: "Just now" }
+      };
+
+      await addDoc(collection(db, "stations"), {
+        name: newStation.name,
+        address: newStation.address,
+        location: { lat: parseFloat(newStation.lat), lng: parseFloat(newStation.lng) },
+        isOpen: true,
+        fuels: defaultFuels,
+        updatedCount: 0
+      });
+      setShowAddForm(false);
+      setNewStation({ name: "", address: "", lat: "", lng: "" });
+      mutate();
+    } catch (e) {
+      console.error(e);
+      alert("Error adding station");
+    }
+  };
+
+  const handleDeleteStation = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this station?")) {
+      await deleteDoc(doc(db, "stations", id));
+      mutate();
+    }
+  };
+
+  const discoverStations = async () => {
+    if (!isLoaded || !window.google) {
+      alert("Google Places API is loading or unavailable. Check API keys and ensure billing is enabled.");
+      return;
+    }
+
+    setIsDiscovering(true);
+
+    const runPlacesSearch = (location: google.maps.LatLng) => {
+      const service = new window.google.maps.places.PlacesService(document.createElement('div'));
+      
+      const request = {
+        location,
+        radius: 10000, // 10km radius
+        type: "gas_station"
+      };
+
+      service.nearbySearch(request, async (results, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+          let added = 0;
+          for (const place of results) {
+            if (!place.name || !place.geometry?.location) continue;
+            
+            // Deduplicate logic
+            const placeLat = place.geometry.location.lat();
+            const placeLng = place.geometry.location.lng();
+            
+            const exists = stations.some(s => 
+              s.name.toLowerCase() === place.name!.toLowerCase() || 
+              (Math.abs(s.location.lat - placeLat) < 0.001 && Math.abs(s.location.lng - placeLng) < 0.001)
+            );
+
+            if (!exists) {
+              const defaultFuels = {
+                petrol92: { status: "available" as const, lastUpdatedAt: "Just now" },
+                petrol95: { status: "available" as const, lastUpdatedAt: "Just now" },
+                diesel: { status: "available" as const, lastUpdatedAt: "Just now" },
+                superDiesel: { status: "available" as const, lastUpdatedAt: "Just now" }
+              };
+
+              await addDoc(collection(db, "stations"), {
+                name: place.name,
+                address: place.vicinity || "Unknown Location",
+                location: { lat: placeLat, lng: placeLng },
+                isOpen: true,
+                fuels: defaultFuels,
+                updatedCount: 0
+              });
+              added++;
+            }
+          }
+          alert(`Success! Discovered and imported ${added} new missing stations.`);
+          mutate();
+        } else {
+          alert(`Search failed or no nearby stations found. Status: ${status}`);
+        }
+        setIsDiscovering(false);
+      });
+    };
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => runPlacesSearch(new window.google.maps.LatLng(pos.coords.latitude, pos.coords.longitude)),
+        () => runPlacesSearch(new window.google.maps.LatLng(6.9271, 79.8612)) // Fallback to Colombo
+      );
+    } else {
+      runPlacesSearch(new window.google.maps.LatLng(6.9271, 79.8612));
+    }
+  };
+
+  return (
+    <main className="min-h-screen pb-20 p-4 sm:p-8 relative">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="max-w-6xl mx-auto flex flex-col gap-8">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-white/10 pb-8 mt-8">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight">Admin Dashboard</h1>
+            <p className="font-medium text-muted-foreground mt-1">Manage network stations & oversee availability</p>
+          </div>
+          <button 
+            onClick={signOut}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-semibold transition-colors border border-white/10 focus:outline-none focus:ring-2 focus:ring-white/20"
+          >
+            <LogOut className="w-4 h-4" /> Sign Out
+          </button>
+        </header>
+
+        <section className="flex flex-col gap-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/20 p-4 rounded-2xl border border-white/5 shadow-inner">
+            <h2 className="text-xl font-bold tracking-tight px-2 flex items-center gap-3">
+              Registered Stations 
+              <span className="text-xs px-2.5 py-1 bg-white/10 text-white rounded-full font-mono">{stations.length}</span>
+            </h2>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={discoverStations}
+                disabled={isDiscovering || !isLoaded}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-all border border-white/20 disabled:opacity-50"
+              >
+                {isDiscovering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Map className="w-4 h-4" />} 
+                {isDiscovering ? "Scanning..." : "Auto-Discover Nearby"}
+              </button>
+              <button 
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all shadow-xl"
+              >
+                <Plus className="w-4 h-4" /> Add Manual
+              </button>
+            </div>
+          </div>
+
+          {showAddForm && (
+            <form onSubmit={handleAddStation} className="glass-panel p-8 rounded-3xl flex flex-col sm:flex-row gap-5 flex-wrap items-end border border-white/10 animate-in fade-in slide-in-from-top-4 shadow-2xl">
+              <div className="flex flex-col gap-2.5 w-full sm:w-auto flex-1">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Name</label>
+                <input required className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.name} onChange={e => setNewStation({...newStation, name: e.target.value})} placeholder="E.g. CEpetco Townplace" />
+              </div>
+              <div className="flex flex-col gap-2.5 w-full sm:w-auto flex-1">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Address</label>
+                <input required className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.address} onChange={e => setNewStation({...newStation, address: e.target.value})} placeholder="123 Main St, City" />
+              </div>
+              <div className="flex flex-col gap-2.5 w-[calc(50%-0.625rem)] sm:w-28">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Latitude</label>
+                <input required type="number" step="any" className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.lat} onChange={e => setNewStation({...newStation, lat: e.target.value})} placeholder="6.92" />
+              </div>
+              <div className="flex flex-col gap-2.5 w-[calc(50%-0.625rem)] sm:w-28">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Longitude</label>
+                <input required type="number" step="any" className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.lng} onChange={e => setNewStation({...newStation, lng: e.target.value})} placeholder="79.86" />
+              </div>
+              <button type="submit" className="px-8 py-3 bg-white text-black font-extrabold tracking-wide text-sm rounded-xl hover:bg-neutral-200 transition-all w-full sm:w-auto mt-2 sm:mt-0 shadow-xl">
+                Save
+              </button>
+            </form>
+          )}
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+          ) : (
+            <div className="glass-panel overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left whitespace-nowrap">
+                  <thead className="bg-black/40 text-muted-foreground uppercase text-xs font-bold tracking-wider border-b border-white/10">
+                    <tr>
+                      <th className="px-6 py-5">Station Info</th>
+                      <th className="px-6 py-5">Global Status</th>
+                      <th className="px-6 py-5">Coordinates</th>
+                      <th className="px-6 py-5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {stations.map(station => (
+                      <tr key={station.id} className="hover:bg-white/5 transition-colors group">
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-base text-foreground tracking-tight">{station.name}</div>
+                          <div className="text-muted-foreground font-medium text-xs mt-1 truncate max-w-[300px]">{station.address}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button 
+                            onClick={() => handleToggleOpen(station.id, station.isOpen)}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold border ${station.isOpen ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20" : "bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20"} transition-all`}
+                          >
+                            <Power className="w-3 h-3" /> {station.isOpen ? "OPEN" : "CLOSED"}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 font-mono text-xs font-medium text-muted-foreground">
+                          {station.location?.lat.toFixed(4)}, {station.location?.lng.toFixed(4)}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button 
+                            onClick={() => handleDeleteStation(station.id)}
+                            className="p-2.5 rounded-xl text-rose-500/70 hover:text-rose-500 hover:bg-rose-500/10 focus:outline-none focus:ring-2 focus:ring-rose-500/40 transition-all opacity-50 group-hover:opacity-100"
+                            title="Delete Station"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {stations.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-12 text-center">
+                          <p className="text-muted-foreground font-semibold">No stations found in the database. Use Auto-Discover to populate!</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+}
