@@ -92,8 +92,8 @@ export function StationCard({ station }: StationCardProps) {
 
       {/* Header */}
       <div className="flex flex-col gap-1 mt-1">
-        <h3 className="text-xl font-extrabold leading-tight tracking-tight">{station.name}</h3>
-        <p className="text-sm text-muted-foreground truncate font-medium" title={station.address}>{station.address}</p>
+        <h3 className="text-xl font-extrabold leading-tight tracking-tight">{station.name || "Unknown Station"}</h3>
+        <p className="text-sm text-muted-foreground truncate font-medium" title={station.address}>{station.address || "Location not available"}</p>
       </div>
 
       {/* Fuel Rows */}

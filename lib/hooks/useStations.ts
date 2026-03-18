@@ -51,11 +51,13 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
         } as StationData;
       });
 
-      // Find firestore stations that weren't matched in the Google results
+      // Only include unmatched Firestore stations that have a name (so cards don't appear blank)
       const unmatchedFirestore = firestoreStations
-        .filter(fs => !matchedIds.has(fs.id) && fs.location?.lat && fs.location?.lng)
+        .filter(fs => !matchedIds.has(fs.id) && fs.location?.lat && fs.location?.lng && fs.name)
         .map(fs => ({
           ...fs,
+          name: fs.name || "Unknown Station",
+          address: fs.address || "Sri Lanka",
           fuels: {
             petrol92: fs.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
             petrol95: fs.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
