@@ -45,8 +45,8 @@ export default function Home() {
     }
   }, [location, geoError, geoLoading, customLocation]);
 
-  const activeLat = customLocation ? undefined : location?.lat;
-  const activeLng = customLocation ? undefined : location?.lng;
+  const activeLat = customLocation ? undefined : (location?.lat ? Math.round(location.lat * 10000) / 10000 : undefined);
+  const activeLng = customLocation ? undefined : (location?.lng ? Math.round(location.lng * 10000) / 10000 : undefined);
 
   const { stations, isLoading: stationsLoading } = useStations(activeLat, activeLng, customLocation || undefined);
 
@@ -127,8 +127,8 @@ export default function Home() {
           </div>
 
           {/* List Column */}
-          <div className="lg:col-span-2 flex flex-col gap-4 h-[calc(100vh-250px)] lg:sticky lg:top-28">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4 lg:mt-0 px-1">
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4 lg:mt-0">
               <h2 className="text-xl font-bold flex items-center gap-3">
                 Nearby Stations
                 <span className="text-xs font-semibold text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
@@ -138,7 +138,7 @@ export default function Home() {
             </div>
 
             {/* List Filters */}
-            <div className="flex flex-col gap-2.5 mb-2 mt-1 px-1">
+            <div className="flex flex-col gap-2.5 mb-2 mt-1">
               <span className="text-xs font-bold text-muted-foreground">Filter</span>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-2 bg-black/20 p-1 rounded-full border border-white/5 w-fit">
@@ -165,7 +165,7 @@ export default function Home() {
             </div>
 
             {stationsLoading ? (
-              <div className="flex flex-col gap-4 overflow-hidden">
+              <div className="flex flex-col gap-4">
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="h-48 glass-card rounded-2xl animate-pulse bg-white/5 border border-white/5" />
                 ))}
@@ -175,7 +175,7 @@ export default function Home() {
                 <p className="text-muted-foreground font-medium">No stations found matching your criteria.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-4 overflow-y-auto pb-10 pr-2 custom-scrollbar">
+              <div className="flex flex-col gap-4 h-full lg:overflow-y-auto pb-10 custom-scrollbar">
                 {filteredStations.map(station => (
                   <StationCard key={station.id} station={station} />
                 ))}
