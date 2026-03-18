@@ -8,6 +8,7 @@ import { MapPin, ArrowLeft, Loader2, CheckCircle2, Clock, Users } from "lucide-r
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { TimeAgo } from "@/components/blocks/TimeAgo";
+import { mutate } from "swr";
 
 
 
@@ -98,6 +99,10 @@ export default function StationDetail({ params }: { params: { id: string } }) {
     setIsSubmitting(true);
     try {
       await updateFuelStatus(station.id, selectedFuel, selectedStatus);
+      
+      // Global revalidation for all station lists
+      mutate(key => Array.isArray(key) && key[0] === "stations");
+
       setSuccess(true);
       setStation(prev => {
         if (!prev) return prev;
@@ -124,6 +129,10 @@ export default function StationDetail({ params }: { params: { id: string } }) {
     setIsSubmittingQueue(true);
     try {
       await updateQueueStatus(station.id, selectedQueue);
+      
+      // Global revalidation for all station lists
+      mutate(key => Array.isArray(key) && key[0] === "stations");
+
       setQueueSuccess(true);
       setStation(prev => {
         if (!prev) return prev;

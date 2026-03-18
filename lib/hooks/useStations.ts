@@ -11,11 +11,15 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
   
   // Helper to merge Google results with Firestore
   const mergeResults = (results: google.maps.places.PlaceResult[]) => {
+      const matchedIds = new Set<string>();
       const validStations = results.filter(p => p.name && !isLPGas(p.name));
-      return validStations.map(place => {
+      
+      const mappedResults = validStations.map(place => {
         const placeId = (place.place_id || place.name || "").replace(/\//g, "-");
         const fsData = firestoreStations.find(fs => fs.id === placeId || fs.name === place.name);
         
+        if (fsData) matchedIds.add(fsData.id);
+
         return {
           id: placeId,
           name: place.name || "Unknown Station",
@@ -37,6 +41,22 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
           distance: 0
         } as StationData;
       });
+
+      // Find firestore stations that weren't matched in the Google results
+      const unmatchedFirestore = firestoreStations
+        .filter(fs => !matchedIds.has(fs.id))
+        .map(fs => ({
+          ...fs,
+          fuels: {
+            petrol92: fs.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
+            petrol95: fs.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
+            diesel: fs.fuels?.diesel || { status: "none", lastUpdatedAt: "No Data" },
+            superDiesel: fs.fuels?.superDiesel || { status: "none", lastUpdatedAt: "No Data" }
+          },
+          distance: 0
+        }));
+
+      return [...mappedResults, ...unmatchedFirestore];
   };
 
   if (typeof window !== "undefined" && window.google) {
