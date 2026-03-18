@@ -24,9 +24,27 @@ export function useGeolocation() {
     };
 
     const handleSuccess = (position: GeolocationPosition) => {
-      setLocation({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
+      const newLat = position.coords.latitude;
+      const newLng = position.coords.longitude;
+
+      // Only update if location hasn't been set yet, OR if user has moved > 10 meters
+      setLocation(prev => {
+        if (!prev) return { lat: newLat, lng: newLng };
+        
+        const R = 6371e3; // metres
+        const φ1 = prev.lat * Math.PI/180;
+        const φ2 = newLat * Math.PI/180;
+        const Δφ = (newLat-prev.lat) * Math.PI/180;
+        const Δλ = (newLng-prev.lng) * Math.PI/180;
+
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const d = R * c;
+
+        if (d < 10) return prev; // Less than 10m movement, don't trigger re-render
+        return { lat: newLat, lng: newLng };
       });
       setError(null);
       setLoading(false);
