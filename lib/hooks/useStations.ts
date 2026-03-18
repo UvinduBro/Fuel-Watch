@@ -25,11 +25,11 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
             lng: place.geometry?.location?.lng() || 0
           },
           isOpen: fsData?.isOpen ?? true,
-          fuels: fsData?.fuels || {
-            petrol92: { status: "none", lastUpdatedAt: "No Data" },
-            petrol95: { status: "none", lastUpdatedAt: "No Data" },
-            diesel: { status: "none", lastUpdatedAt: "No Data" },
-            superDiesel: { status: "none", lastUpdatedAt: "No Data" }
+          fuels: {
+            petrol92: fsData?.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
+            petrol95: fsData?.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
+            diesel: fsData?.fuels?.diesel || { status: "none", lastUpdatedAt: "No Data" },
+            superDiesel: fsData?.fuels?.superDiesel || { status: "none", lastUpdatedAt: "No Data" }
           },
           queue: fsData?.queue,
           queueUpdatedAt: fsData?.queueUpdatedAt,

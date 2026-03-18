@@ -46,11 +46,11 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                 lng: place.geometry?.location?.lng() || fsData?.location?.lng || 0
               },
               isOpen: fsData?.isOpen ?? true,
-              fuels: fsData?.fuels || {
-                petrol92: { status: "out", lastUpdatedAt: "No Data" },
-                petrol95: { status: "out", lastUpdatedAt: "No Data" },
-                diesel: { status: "out", lastUpdatedAt: "No Data" },
-                superDiesel: { status: "out", lastUpdatedAt: "No Data" }
+              fuels: {
+                petrol92: fsData?.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
+                petrol95: fsData?.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
+                diesel: fsData?.fuels?.diesel || { status: "none", lastUpdatedAt: "No Data" },
+                superDiesel: fsData?.fuels?.superDiesel || { status: "none", lastUpdatedAt: "No Data" }
               },
               queue: fsData?.queue,
               queueUpdatedAt: fsData?.queueUpdatedAt,
@@ -58,12 +58,32 @@ export default function StationDetail({ params }: { params: { id: string } }) {
               distance: 0
             } as StationData);
           } else {
-            setStation(fsData);
+            setStation({
+              ...fsData,
+              fuels: {
+                petrol92: fsData?.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
+                petrol95: fsData?.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
+                diesel: fsData?.fuels?.diesel || { status: "none", lastUpdatedAt: "No Data" },
+                superDiesel: fsData?.fuels?.superDiesel || { status: "none", lastUpdatedAt: "No Data" }
+              }
+            } as StationData);
           }
           setLoading(false);
         });
       } else {
-        setStation(fsData);
+        if (fsData) {
+          setStation({
+            ...fsData,
+            fuels: {
+              petrol92: fsData?.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
+              petrol95: fsData?.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
+              diesel: fsData?.fuels?.diesel || { status: "none", lastUpdatedAt: "No Data" },
+              superDiesel: fsData?.fuels?.superDiesel || { status: "none", lastUpdatedAt: "No Data" }
+            }
+          } as StationData);
+        } else {
+          setStation(null);
+        }
         setLoading(false);
       }
     };
@@ -216,9 +236,10 @@ export default function StationDetail({ params }: { params: { id: string } }) {
           )}
 
           <div className="flex flex-col gap-3">
-            {fuelOptions.map(opt => (
-               <FuelRow key={opt.key} label={opt.label} fuel={hasUpdates ? station.fuels[opt.key] : { status: "none", lastUpdatedAt: "No Data" }} />
-            ))}
+            {fuelOptions.map(opt => {
+               const safeFuel = hasUpdates && station.fuels[opt.key] ? station.fuels[opt.key] : { status: "none", lastUpdatedAt: "No Data" };
+               return <FuelRow key={opt.key} label={opt.label} fuel={safeFuel as any} />;
+            })}
           </div>
         </div>
 
