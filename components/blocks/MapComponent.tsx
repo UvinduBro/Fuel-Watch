@@ -81,7 +81,7 @@ export function MapComponent({ stations, userLocation }: MapProps) {
         {stations.map(station => (
           <MarkerF
             key={station.id}
-            position={{ lat: station.location.lat, lng: station.location.lng }}
+            position={{ lat: station.location?.lat || 0, lng: station.location?.lng || 0 }}
             onClick={() => setActiveStation(station)}
             icon={{
               url: station.isNearest 
@@ -93,7 +93,7 @@ export function MapComponent({ stations, userLocation }: MapProps) {
           />
         ))}
 
-        {activeStation && (
+        {activeStation && activeStation.location && (
           <InfoWindowF
             position={{ lat: activeStation.location.lat, lng: activeStation.location.lng }}
             onCloseClick={() => setActiveStation(null)}

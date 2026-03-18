@@ -44,7 +44,7 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
 
       // Find firestore stations that weren't matched in the Google results
       const unmatchedFirestore = firestoreStations
-        .filter(fs => !matchedIds.has(fs.id))
+        .filter(fs => !matchedIds.has(fs.id) && fs.location?.lat && fs.location?.lng)
         .map(fs => ({
           ...fs,
           fuels: {
