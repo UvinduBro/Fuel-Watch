@@ -17,19 +17,35 @@ export function useGeolocation() {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setLoading(false);
-      },
-      (err) => {
+    const options: PositionOptions = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    };
+
+    const handleSuccess = (position: GeolocationPosition) => {
+      setLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
+      setError(null);
+      setLoading(false);
+    };
+
+    const handleError = (err: GeolocationPositionError) => {
+      // Don't stop loading on the first timeout if we're just waiting for better signal
+      if (err.code !== err.TIMEOUT) {
         setError(err.message);
         setLoading(false);
       }
-    );
+    };
+
+    const watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, options);
+
+    // Also do a one-time check for immediate results
+    navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
+
+    return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
   return { location, error, loading };

@@ -25,7 +25,7 @@ export default function Home() {
   const [customLocation, setCustomLocation] = useState("");
   const [tempLocation, setTempLocation] = useState("");
 
-  const { location, loading: geoLoading } = useGeolocation();
+  const { location, error: geoError, loading: geoLoading } = useGeolocation();
 
   useEffect(() => {
     if (location && window.google && !customLocation) {
@@ -38,8 +38,12 @@ export default function Home() {
           setLocationName("Unknown area");
         }
       });
+    } else if (geoError && !customLocation) {
+      setLocationName("Location disabled");
+    } else if (!location && !geoLoading && !customLocation) {
+      setLocationName("Sri Lanka");
     }
-  }, [location, customLocation]);
+  }, [location, geoError, geoLoading, customLocation]);
 
   const activeLat = customLocation ? undefined : location?.lat;
   const activeLng = customLocation ? undefined : location?.lng;
