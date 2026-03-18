@@ -26,8 +26,9 @@ export default function Login() {
     setIsSubmitting(true);
     try {
       await signInWithEmail(email, password);
-    } catch (err: any) {
-      setAuthError(err.message.includes("auth/") ? "Invalid credentials or account disabled." : err.message);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "An unknown error occurred";
+      setAuthError(errorMsg.includes("auth/") ? "Invalid credentials or account disabled." : errorMsg);
       setIsSubmitting(false);
     }
   };
