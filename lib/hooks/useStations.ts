@@ -75,7 +75,17 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
     }
   }
 
-  return firestoreStations;
+  const sanitizedStations = firestoreStations.map(station => ({
+    ...station,
+    fuels: {
+      petrol92: station.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
+      petrol95: station.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
+      diesel: station.fuels?.diesel || { status: "none", lastUpdatedAt: "No Data" },
+      superDiesel: station.fuels?.superDiesel || { status: "none", lastUpdatedAt: "No Data" }
+    }
+  }));
+
+  return sanitizedStations;
 };
 
 export function useStations(userLat?: number, userLng?: number, searchQuery?: string) {

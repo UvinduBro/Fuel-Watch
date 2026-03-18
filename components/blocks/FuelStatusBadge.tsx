@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertTriangle, XCircle, Clock } from "lucide-react";
+import { TimeAgo } from "./TimeAgo";
 
 export type FuelStatus = "available" | "low" | "out" | "none";
 
@@ -46,11 +47,8 @@ export function FuelStatusBadge({ status, lastUpdated }: FuelStatusBadgeProps) {
         <Icon className="w-3.5 h-3.5" />
         {config.label}
       </div>
-      {lastUpdated && (
-        <div className="text-[10px] text-muted-foreground flex items-center gap-1 ml-1">
-          <Clock className="w-3 h-3" />
-          {lastUpdated}
-        </div>
+      {lastUpdated && lastUpdated !== "No Data" && (
+        <TimeAgo dateString={lastUpdated} />
       )}
     </div>
   );

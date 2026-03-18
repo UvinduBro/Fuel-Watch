@@ -30,30 +30,14 @@ interface StationCardProps {
   station: StationData;
 }
 
-function timeAgo(dateString: string) {
-  if (dateString === "No Data" || !dateString) return "No Data";
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return dateString;
-  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-  let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " years ago";
-  interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " months ago";
-  interval = seconds / 86400;
-  if (interval > 1) return Math.floor(interval) + " days ago";
-  interval = seconds / 3600;
-  if (interval > 1) return Math.floor(interval) + " hours ago";
-  interval = seconds / 60;
-  if (interval > 1) return Math.floor(interval) + " mins ago";
-  return "just now";
-}
+import { TimeAgo } from "./TimeAgo";
 
 const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
   <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
     <div className="flex items-center gap-3 font-bold text-sm text-foreground/90">
       <span className="text-xl leading-none">⛽</span> {label}
     </div>
-    <FuelStatusBadge status={fuel.status} lastUpdated={timeAgo(fuel.lastUpdatedAt)} />
+    <FuelStatusBadge status={fuel.status} lastUpdated={fuel.lastUpdatedAt} />
   </div>
 );
 
@@ -113,8 +97,9 @@ export function StationCard({ station }: StationCardProps) {
             <Users className="w-3.5 h-3.5 sm:w-4 sm:w-4 text-blue-400" /> {station.updatedCount || 0} people updated this shed
           </div>
           {station.queue && (
-            <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-               🚦 Queue: <span className={cn("px-2 py-0.5 rounded-md", station.queue === "none" ? "bg-emerald-500/20 text-emerald-500" : station.queue === "medium" ? "bg-amber-500/20 text-amber-500" : "bg-rose-500/20 text-rose-500")}>{station.queue.toUpperCase()}</span>
+            <div className="text-xs font-bold text-muted-foreground flex flex-col items-start gap-1">
+               <div className="flex items-center gap-1.5">🚦 Queue: <span className={cn("px-2 py-0.5 rounded-md", station.queue === "none" ? "bg-emerald-500/20 text-emerald-500" : station.queue === "medium" ? "bg-amber-500/20 text-amber-500" : "bg-rose-500/20 text-rose-500")}>{station.queue.toUpperCase()}</span></div>
+               {station.queueUpdatedAt && <TimeAgo dateString={station.queueUpdatedAt} />}
             </div>
           )}
         </div>
