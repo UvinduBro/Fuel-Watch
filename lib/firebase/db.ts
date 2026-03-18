@@ -1,7 +1,35 @@
-import { collection, doc, getDocs, getDoc, updateDoc, addDoc, query } from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, updateDoc, addDoc, query, writeBatch, deleteDoc, setDoc } from "firebase/firestore";
 import { db } from "./config";
 import { StationData } from "@/components/blocks/StationCard";
 import { FuelStatus } from "@/components/blocks/FuelStatusBadge";
+
+export const clearAllStationData = async () => {
+  try {
+    const q = query(collection(db, "stations"));
+    const snapshot = await getDocs(q);
+    
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    
+    await batch.commit();
+    
+    // Also clear updates log for a truly fresh start
+    const updatesQ = query(collection(db, "updates"));
+    const updatesSnapshot = await getDocs(updatesQ);
+    const updatesBatch = writeBatch(db);
+    updatesSnapshot.docs.forEach((doc) => {
+      updatesBatch.delete(doc.ref);
+    });
+    await updatesBatch.commit();
+    
+    return true;
+  } catch (error) {
+    console.error("Error clearing database:", error);
+    throw error;
+  }
+};
 
 export const getStations = async (): Promise<StationData[]> => {
   try {
@@ -44,10 +72,20 @@ export const updateFuelStatus = async (
     // 12-hour format for last updated e.g. "2:30 PM"
     const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-    await updateDoc(stationRef, {
-      [`fuels.${fuelType}.status`]: status,
-      [`fuels.${fuelType}.lastUpdatedAt`]: timeString,
-    });
+    const stationDoc = await getDoc(stationRef);
+    const currentUpdatedCount = stationDoc.exists() ? (stationDoc.data()?.updatedCount || 0) : 0;
+    const newUpdatedCount = currentUpdatedCount + 1;
+
+    // Use setDoc with merge: true to support updating/creating hybrid records
+    await setDoc(stationRef, {
+      fuels: {
+        [fuelType]: {
+            status,
+            lastUpdatedAt: timeString
+        }
+      },
+      updatedCount: newUpdatedCount
+    }, { merge: true });
 
     await addDoc(collection(db, "updates"), {
       stationId,
@@ -72,10 +110,15 @@ export const updateQueueStatus = async (
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-    await updateDoc(stationRef, {
+    const stationDoc = await getDoc(stationRef);
+    const currentUpdatedCount = stationDoc.exists() ? (stationDoc.data()?.updatedCount || 0) : 0;
+    const newUpdatedCount = currentUpdatedCount + 1;
+
+    await setDoc(stationRef, {
       queue: queueStatus,
       queueUpdatedAt: timeString,
-    });
+      updatedCount: newUpdatedCount
+    }, { merge: true });
 
     await addDoc(collection(db, "updates"), {
       stationId,

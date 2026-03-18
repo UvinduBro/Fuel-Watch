@@ -54,7 +54,7 @@ export default function FuelSchedulePage() {
             <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
           <h1 className="text-3xl font-extrabold tracking-tight">Fuel Quota Schedule</h1>
-          <p className="text-muted-foreground mt-1 font-medium">Check your allowed pumping dates based on Sri Lanka's plate system.</p>
+          <p className="text-muted-foreground mt-1 font-medium">Check your allowed pumping dates based on Sri Lanka&apos;s plate system.</p>
         </header>
 
         <section className="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl">

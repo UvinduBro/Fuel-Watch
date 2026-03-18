@@ -35,11 +35,47 @@ export default function StationDetail({ params }: { params: { id: string } }) {
   const [queueSuccess, setQueueSuccess] = useState(false);
 
   useEffect(() => {
-    getStationById(id).then(data => {
-      setStation(data);
-      if (data?.queue) setSelectedQueue(data.queue);
-      setLoading(false);
-    });
+    const fetchStation = async () => {
+      // 1. Get Firestore data if it exists
+      const fsData = await getStationById(id);
+      
+      // 2. If we're on a browser and have Google Maps, try to get base data from Google
+      if (typeof window !== "undefined" && window.google) {
+        const service = new window.google.maps.places.PlacesService(document.createElement('div'));
+        service.getDetails({ placeId: id }, (place, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+            setStation({
+              id: id,
+              name: place.name || fsData?.name || "Unknown Station",
+              address: place.vicinity || place.formatted_address || fsData?.address || "Unknown Address",
+              location: {
+                lat: place.geometry?.location?.lat() || fsData?.location?.lat || 0,
+                lng: place.geometry?.location?.lng() || fsData?.location?.lng || 0
+              },
+              isOpen: fsData?.isOpen ?? true,
+              fuels: fsData?.fuels || {
+                petrol92: { status: "out", lastUpdatedAt: "No Data" },
+                petrol95: { status: "out", lastUpdatedAt: "No Data" },
+                diesel: { status: "out", lastUpdatedAt: "No Data" },
+                superDiesel: { status: "out", lastUpdatedAt: "No Data" }
+              },
+              queue: fsData?.queue,
+              queueUpdatedAt: fsData?.queueUpdatedAt,
+              updatedCount: fsData?.updatedCount || 0,
+              distance: 0
+            } as StationData);
+          } else {
+            setStation(fsData);
+          }
+          setLoading(false);
+        });
+      } else {
+        setStation(fsData);
+        setLoading(false);
+      }
+    };
+
+    fetchStation();
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {

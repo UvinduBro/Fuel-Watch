@@ -3,7 +3,7 @@
 import { useAuth, signOut } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut, Plus, Trash2, Power, Map, Globe } from "lucide-react";
+import { Loader2, LogOut, Plus, Trash2, Power, Map, Globe, AlertCircle } from "lucide-react";
 import { useStations } from "@/lib/hooks/useStations";
 import { toggleStationStatus } from "@/lib/firebase/db";
 import { db } from "@/lib/firebase/config";
@@ -357,6 +357,35 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+        </section>
+
+        <section className="mt-12 pt-8 border-t border-rose-500/20">
+          <div className="bg-rose-500/5 border border-rose-500/20 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col gap-1 text-center sm:text-left">
+              <h2 className="text-xl font-bold text-rose-500 flex items-center gap-2 justify-center sm:justify-start">
+                <AlertCircle className="w-5 h-5" /> Dangerous Zone
+              </h2>
+              <p className="text-muted-foreground text-sm font-medium mt-1">
+                Permanently clear all crowdsourced fuel levels, queue status, and update logs.
+              </p>
+            </div>
+            <button 
+              onClick={async () => {
+                if (window.confirm("CRITICAL ACTION: This will permanently wipe all station updates and history. This cannot be undone. Proceed?")) {
+                    try {
+                        await import("@/lib/firebase/db").then(m => m.clearAllStationData());
+                        alert("Database cleared successfully.");
+                        mutate();
+                    } catch (e) {
+                        alert("Error clearing data.");
+                    }
+                }
+              }}
+              className="px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-sm rounded-xl transition-all shadow-lg flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" /> Purge Station Data
+            </button>
+          </div>
         </section>
       </div>
     </main>
