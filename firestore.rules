@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Stations Collection
+    match /stations/{stationId} {
+      // Anyone can read stations
+      allow read: if true;
+      
+      // Only authenticated users (admins) can create or delete stations
+      allow create, delete: if request.auth != null;
+      
+      // Anyone can update the station, but unauthenticated users can ONLY update the fuels fields
+      allow update: if request.auth != null || 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fuels']);
+    }
+    
+    // Updates Collection (Audit log of user contributions)
+    match /updates/{updateId} {
+      // Anyone can read updates
+      allow read: if true;
+      
+      // Anyone can create an update log
+      allow create: if true;
+      
+      // Only admins can modify or delete logs
+      allow update, delete: if request.auth != null;
+    }
+  }
+}
