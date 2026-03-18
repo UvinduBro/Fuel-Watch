@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FilterBar } from "@/components/blocks/FilterBar";
 import { StationCard } from "@/components/blocks/StationCard";
 import { useStations } from "@/lib/hooks/useStations";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
-import { Loader2 } from "lucide-react";
+import { Loader2, MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -17,16 +17,60 @@ const MapComponent = dynamic(() => import("@/components/blocks/MapComponent").th
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showOpenOnly, setShowOpenOnly] = useState(false);
+  const [fuelFilter, setFuelFilter] = useState("All");
+  const [availabilityFilter, setAvailabilityFilter] = useState("All Availability");
+  
+  // Location Picker logic
+  const [locationName, setLocationName] = useState("Detecting...");
+  const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [customLocation, setCustomLocation] = useState("");
+  const [tempLocation, setTempLocation] = useState("");
 
   const { location, loading: geoLoading } = useGeolocation();
-  const { stations, isLoading: stationsLoading } = useStations(location?.lat, location?.lng);
+
+  useEffect(() => {
+    if (location && window.google && !customLocation) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ location }, (results, status) => {
+        if (status === "OK" && results?.[0]) {
+           const cityObj = results[0].address_components.find(c => c.types.includes("locality") || c.types.includes("sublocality"));
+           setLocationName(cityObj ? cityObj.short_name : "Nearby");
+        } else {
+           setLocationName("Unknown area");
+        }
+      });
+    }
+  }, [location, customLocation]);
+
+  const activeLat = customLocation ? undefined : location?.lat;
+  const activeLng = customLocation ? undefined : location?.lng;
+  
+  const { stations, isLoading: stationsLoading } = useStations(activeLat, activeLng, customLocation || undefined);
 
   // Filter logic
   const filteredStations = stations.filter(station => {
     const matchesSearch = station.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           station.address.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesOpen = showOpenOnly ? station.isOpen : true;
-    return matchesSearch && matchesOpen;
+    
+    // Fuel Type Filter
+    let matchesFuel = true;
+    if (fuelFilter === "Petrol") {
+      matchesFuel = station.fuels.petrol92.status !== "out" || station.fuels.petrol95.status !== "out";
+    } else if (fuelFilter === "Diesel") {
+      matchesFuel = station.fuels.diesel.status !== "out" || station.fuels.superDiesel.status !== "out";
+    }
+
+    // Availability Filter
+    let matchesAvailability = true;
+    if (availabilityFilter !== "All Availability") {
+       const hasAvailable = ["petrol92", "petrol95", "diesel", "superDiesel"].some(k => station.fuels[k as keyof typeof station.fuels].status === "available");
+       const hasLow = ["petrol92", "petrol95", "diesel", "superDiesel"].some(k => station.fuels[k as keyof typeof station.fuels].status === "low");
+       if (availabilityFilter === "Available") matchesAvailability = hasAvailable;
+       if (availabilityFilter === "Low Stock") matchesAvailability = hasLow;
+    }
+
+    return matchesSearch && matchesOpen && matchesFuel && matchesAvailability;
   });
 
   return (
@@ -78,12 +122,77 @@ export default function Home() {
 
           {/* List Column */}
           <div className="lg:col-span-2 flex flex-col gap-4">
-            <h2 className="text-lg font-semibold flex items-center justify-between mt-4 lg:mt-0">
-              Nearby Stations
-              <span className="text-sm font-normal text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
-                {filteredStations.length} found
-              </span>
-            </h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4 lg:mt-0">
+              <h2 className="text-xl font-bold flex items-center gap-3">
+                Nearby Stations
+                <span className="text-xs font-semibold text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
+                  {filteredStations.length} found
+                </span>
+              </h2>
+
+              {/* Location Picker */}
+              <div className="relative">
+                 {!isEditingLocation ? (
+                   <button 
+                     onClick={() => { setIsEditingLocation(true); setTempLocation(customLocation); }}
+                     className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition-all text-muted-foreground hover:text-foreground"
+                   >
+                     <MapPin className="w-3.5 h-3.5 text-primary" />
+                     {customLocation ? `Search: ${customLocation}` : `Your location • ${locationName}`}
+                   </button>
+                 ) : (
+                   <div className="flex items-center gap-2">
+                     <input 
+                       autoFocus
+                       type="text"
+                       placeholder="e.g. Kandy, Galle..."
+                       className="px-3 py-1.5 rounded-full bg-black/40 border border-primary/50 text-xs font-bold focus:outline-none w-40 sm:w-48"
+                       value={tempLocation}
+                       onChange={(e) => setTempLocation(e.target.value)}
+                       onKeyDown={(e) => {
+                         if (e.key === 'Enter') {
+                           setCustomLocation(tempLocation);
+                           setIsEditingLocation(false);
+                         } else if (e.key === 'Escape') {
+                           setIsEditingLocation(false);
+                         }
+                       }}
+                       onBlur={() => {
+                         setCustomLocation(tempLocation);
+                         setIsEditingLocation(false);
+                       }}
+                     />
+                   </div>
+                 )}
+              </div>
+            </div>
+
+            {/* List Filters */}
+            <div className="flex flex-col gap-2.5 mb-2 mt-1">
+              <span className="text-xs font-bold text-muted-foreground">Filter</span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-2 bg-black/20 p-1 rounded-full border border-white/5 w-fit">
+                  {["All", "Petrol", "Diesel"].map(f => (
+                    <button 
+                      key={f}
+                      onClick={() => setFuelFilter(f)}
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${fuelFilter === f ? 'bg-white/10 text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+                <select 
+                  value={availabilityFilter}
+                  onChange={(e) => setAvailabilityFilter(e.target.value)}
+                  className="bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 h-8 w-fit"
+                >
+                  <option value="All Availability">All Availability</option>
+                  <option value="Available">Available</option>
+                  <option value="Low Stock">Low Stock</option>
+                </select>
+              </div>
+            </div>
 
             {stationsLoading ? (
               <div className="flex flex-col gap-4">

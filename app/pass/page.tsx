@@ -29,7 +29,7 @@ export default function PassPage() {
           </div>
         </header>
 
-        <section className="glass-panel p-2 rounded-3xl border border-white/10 flex-1 relative min-h-[600px] overflow-hidden shadow-2xl">
+        <section className="glass-panel rounded-2xl border border-white/10 relative w-full h-[calc(100vh-180px)] min-h-[600px] overflow-hidden shadow-2xl p-0">
            {isLoading && (
                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm z-10 gap-4">
                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -38,7 +38,7 @@ export default function PassPage() {
            )}
            <iframe 
                src="https://hayaku.lk/" 
-               className="w-full h-full rounded-2xl border-none bg-black"
+               className="absolute inset-0 w-full h-full border-none bg-black"
                title="Hayaku Fuel Pass Generator"
                onLoad={() => setIsLoading(false)}
                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"

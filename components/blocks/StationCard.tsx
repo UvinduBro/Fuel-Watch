@@ -92,7 +92,16 @@ export function StationCard({ station }: StationCardProps) {
       </div>
 
       {/* Warning / Status Box */}
-      {!hasUpdates && (
+      {station.isNearest && (
+        <div className="flex items-start gap-3 px-4 py-3 bg-[#eab308]/10 dark:bg-[#ca8a04]/10 border border-[#eab308]/20 rounded-xl text-[#ca8a04] dark:text-[#fde047] text-xs sm:text-sm font-semibold mt-1 shadow-sm">
+          <Info className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="flex flex-col gap-1 leading-relaxed">
+            <span className="font-bold opacity-90">ඉන්ධන තත්ත්වය ජනතාව විසින් වාර්තා කරනු ලබන අතර මෑත කාලීන තත්ත්වය වෙනස් විය හැකිය.</span>
+            <span className="opacity-80">Fuel status is updated by the public and reflects recent user reports, though availability can change.</span>
+          </div>
+        </div>
+      )}
+      {!hasUpdates && !station.isNearest && (
         <div className="px-4 py-3 bg-[#eab308]/10 dark:bg-[#ca8a04]/10 border border-[#eab308]/20 rounded-xl text-[#ca8a04] dark:text-[#fde047] text-xs font-semibold mt-1">
           No fuel status updates in DB yet for this station.
         </div>
