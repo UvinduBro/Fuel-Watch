@@ -64,7 +64,8 @@ export const updateFuelStatus = async (
   stationId: string, 
   fuelType: keyof StationData["fuels"], 
   status: FuelStatus, 
-  userId: string = "anonymous"
+  userId: string = "anonymous",
+  stationName?: string
 ) => {
   try {
     const cleanId = stationId.replace(/\//g, "-");
@@ -80,6 +81,7 @@ export const updateFuelStatus = async (
 
     // Use setDoc with merge: true to support updating/creating hybrid records
     await setDoc(stationRef, {
+      ...(stationName && { name: stationName }),
       fuels: {
         [fuelType]: {
             status,

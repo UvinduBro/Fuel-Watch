@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { MapPin, Navigation, Info, Clock, Users } from "lucide-react";
 import { FuelStatusBadge, FuelStatus } from "./FuelStatusBadge";

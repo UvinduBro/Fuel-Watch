@@ -9,6 +9,9 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
   // Helper to filter out LP Gas shops
   const isLPGas = (name: string) => /litro|laugfs|gas center|gas shop|lp gas|domestic gas|gas point|gas showroom/i.test(name);
   
+  // Helper to normalize names for matching
+  const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+
   // Helper to merge Google results with Firestore
   const mergeResults = (results: google.maps.places.PlaceResult[]) => {
       const matchedIds = new Set<string>();
@@ -16,13 +19,19 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
       
       const mappedResults = validStations.map(place => {
         const placeId = (place.place_id || place.name || "").replace(/\//g, "-");
-        const fsData = firestoreStations.find(fs => fs.id === placeId || fs.name === place.name);
+        const placeName = place.name || "";
+        // Match by place_id, or by normalized name
+        const fsData = firestoreStations.find(fs => 
+          fs.id === placeId || 
+          norm(fs.name || "") === norm(placeName) ||
+          norm(fs.id) === norm(placeId)
+        );
         
         if (fsData) matchedIds.add(fsData.id);
 
         return {
           id: placeId,
-          name: place.name || "Unknown Station",
+          name: placeName || "Unknown Station",
           address: place.vicinity || place.formatted_address || "Unknown Address",
           location: {
             lat: place.geometry?.location?.lat() || 0,

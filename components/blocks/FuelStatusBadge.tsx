@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertTriangle, XCircle, Clock } from "lucide-react";
 import { TimeAgo } from "./TimeAgo";

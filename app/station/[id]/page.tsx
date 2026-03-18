@@ -98,7 +98,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
     if (!station) return;
     setIsSubmitting(true);
     try {
-      await updateFuelStatus(station.id, selectedFuel, selectedStatus);
+      await updateFuelStatus(station.id, selectedFuel, selectedStatus, "anonymous", station.name);
       
       // Global revalidation for all station lists
       mutate(key => Array.isArray(key) && key[0] === "stations");

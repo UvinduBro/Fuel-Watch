@@ -55,6 +55,12 @@ export function MapComponent({ stations, userLocation }: MapProps) {
   if (loadError) return <div className="w-full h-full flex items-center justify-center text-rose-500 font-medium">Error loading maps. Check your API key.</div>;
   if (!isLoaded) return <div className="w-full h-full glass-panel flex flex-col items-center justify-center gap-3 text-muted-foreground"><Loader2 className="w-6 h-6 animate-spin" /><span>Loading Google Maps...</span></div>;
 
+  // Only render stations with valid non-zero coordinates to prevent map crashes
+  const mappableStations = stations.filter(
+    s => s.location && typeof s.location.lat === "number" && typeof s.location.lng === "number" 
+      && (s.location.lat !== 0 || s.location.lng !== 0)
+  );
+
   return (
     <div className="w-full h-[300px] lg:h-[calc(100vh-250px)] rounded-3xl overflow-hidden glass-panel relative z-0 border border-white/10 shadow-2xl">
       <GoogleMap
@@ -78,7 +84,7 @@ export function MapComponent({ stations, userLocation }: MapProps) {
           />
         )}
 
-        {stations.map(station => (
+        {mappableStations.map(station => (
           <MarkerF
             key={station.id}
             position={{ lat: station.location?.lat || 0, lng: station.location?.lng || 0 }}
