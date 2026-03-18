@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   themeColor: "#000000",
 };
 
+import { GlobalBanner } from "@/components/blocks/GlobalBanner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} min-h-screen bg-background antialiased`}>
+        <GlobalBanner />
         {children}
       </body>
     </html>

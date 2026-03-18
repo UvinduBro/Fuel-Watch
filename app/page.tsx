@@ -5,7 +5,7 @@ import { FilterBar } from "@/components/blocks/FilterBar";
 import { StationCard } from "@/components/blocks/StationCard";
 import { useStations } from "@/lib/hooks/useStations";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -15,11 +15,10 @@ const MapComponent = dynamic(() => import("@/components/blocks/MapComponent").th
 });
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
   const [showOpenOnly, setShowOpenOnly] = useState(false);
   const [fuelFilter, setFuelFilter] = useState("All");
   const [availabilityFilter, setAvailabilityFilter] = useState("All Availability");
-  
+
   // Location Picker logic
   const [locationName, setLocationName] = useState("Detecting...");
   const [isEditingLocation, setIsEditingLocation] = useState(false);
@@ -33,10 +32,10 @@ export default function Home() {
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ location }, (results, status) => {
         if (status === "OK" && results?.[0]) {
-           const cityObj = results[0].address_components.find(c => c.types.includes("locality") || c.types.includes("sublocality"));
-           setLocationName(cityObj ? cityObj.short_name : "Nearby");
+          const cityObj = results[0].address_components.find(c => c.types.includes("locality") || c.types.includes("sublocality"));
+          setLocationName(cityObj ? cityObj.short_name : "Nearby");
         } else {
-           setLocationName("Unknown area");
+          setLocationName("Unknown area");
         }
       });
     }
@@ -44,13 +43,11 @@ export default function Home() {
 
   const activeLat = customLocation ? undefined : location?.lat;
   const activeLng = customLocation ? undefined : location?.lng;
-  
+
   const { stations, isLoading: stationsLoading } = useStations(activeLat, activeLng, customLocation || undefined);
 
   // Filter logic
   const filteredStations = stations.filter(station => {
-    const matchesSearch = station.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          station.address.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesOpen = showOpenOnly ? station.isOpen : true;
     
     // Fuel Type Filter
@@ -64,13 +61,13 @@ export default function Home() {
     // Availability Filter
     let matchesAvailability = true;
     if (availabilityFilter !== "All Availability") {
-       const hasAvailable = ["petrol92", "petrol95", "diesel", "superDiesel"].some(k => station.fuels[k as keyof typeof station.fuels].status === "available");
-       const hasLow = ["petrol92", "petrol95", "diesel", "superDiesel"].some(k => station.fuels[k as keyof typeof station.fuels].status === "low");
-       if (availabilityFilter === "Available") matchesAvailability = hasAvailable;
-       if (availabilityFilter === "Low Stock") matchesAvailability = hasLow;
+      const hasAvailable = ["petrol92", "petrol95", "diesel", "superDiesel"].some(k => station.fuels[k as keyof typeof station.fuels].status === "available");
+      const hasLow = ["petrol92", "petrol95", "diesel", "superDiesel"].some(k => station.fuels[k as keyof typeof station.fuels].status === "low");
+      if (availabilityFilter === "Available") matchesAvailability = hasAvailable;
+      if (availabilityFilter === "Low Stock") matchesAvailability = hasLow;
     }
 
-    return matchesSearch && matchesOpen && matchesFuel && matchesAvailability;
+    return matchesOpen && matchesFuel && matchesAvailability;
   });
 
   return (
@@ -88,10 +85,10 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-3 mt-4 sm:mt-0">
           <Link href="/pass" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
-            📱 Wallet Pass
+            Wallet Pass
           </Link>
           <Link href="/schedule" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
-            📅 Fuel Schedule
+            Fuel Schedule
           </Link>
           <Link href="/stations" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
             All Stations
@@ -100,9 +97,14 @@ export default function Home() {
       </header>
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 flex flex-col gap-6">
-        <FilterBar 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
+        <FilterBar
+          locationName={locationName}
+          customLocation={customLocation}
+          tempLocation={tempLocation}
+          setTempLocation={setTempLocation}
+          isEditingLocation={isEditingLocation}
+          setIsEditingLocation={setIsEditingLocation}
+          setCustomLocation={setCustomLocation}
           showOpenOnly={showOpenOnly}
           setShowOpenOnly={setShowOpenOnly}
         />
@@ -129,42 +131,6 @@ export default function Home() {
                   {filteredStations.length} found
                 </span>
               </h2>
-
-              {/* Location Picker */}
-              <div className="relative">
-                 {!isEditingLocation ? (
-                   <button 
-                     onClick={() => { setIsEditingLocation(true); setTempLocation(customLocation); }}
-                     className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition-all text-muted-foreground hover:text-foreground"
-                   >
-                     <MapPin className="w-3.5 h-3.5 text-primary" />
-                     {customLocation ? `Search: ${customLocation}` : `Your location • ${locationName}`}
-                   </button>
-                 ) : (
-                   <div className="flex items-center gap-2">
-                     <input 
-                       autoFocus
-                       type="text"
-                       placeholder="e.g. Kandy, Galle..."
-                       className="px-3 py-1.5 rounded-full bg-black/40 border border-primary/50 text-xs font-bold focus:outline-none w-40 sm:w-48"
-                       value={tempLocation}
-                       onChange={(e) => setTempLocation(e.target.value)}
-                       onKeyDown={(e) => {
-                         if (e.key === 'Enter') {
-                           setCustomLocation(tempLocation);
-                           setIsEditingLocation(false);
-                         } else if (e.key === 'Escape') {
-                           setIsEditingLocation(false);
-                         }
-                       }}
-                       onBlur={() => {
-                         setCustomLocation(tempLocation);
-                         setIsEditingLocation(false);
-                       }}
-                     />
-                   </div>
-                 )}
-              </div>
             </div>
 
             {/* List Filters */}
@@ -173,7 +139,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-2 bg-black/20 p-1 rounded-full border border-white/5 w-fit">
                   {["All", "Petrol", "Diesel"].map(f => (
-                    <button 
+                    <button
                       key={f}
                       onClick={() => setFuelFilter(f)}
                       className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${fuelFilter === f ? 'bg-white/10 text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
@@ -182,7 +148,7 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
-                <select 
+                <select
                   value={availabilityFilter}
                   onChange={(e) => setAvailabilityFilter(e.target.value)}
                   className="bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 h-8 w-fit"

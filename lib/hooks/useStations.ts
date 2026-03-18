@@ -26,10 +26,10 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
           },
           isOpen: fsData?.isOpen ?? true,
           fuels: fsData?.fuels || {
-            petrol92: { status: "out", lastUpdatedAt: "No Data" },
-            petrol95: { status: "out", lastUpdatedAt: "No Data" },
-            diesel: { status: "out", lastUpdatedAt: "No Data" },
-            superDiesel: { status: "out", lastUpdatedAt: "No Data" }
+            petrol92: { status: "none", lastUpdatedAt: "No Data" },
+            petrol95: { status: "none", lastUpdatedAt: "No Data" },
+            diesel: { status: "none", lastUpdatedAt: "No Data" },
+            superDiesel: { status: "none", lastUpdatedAt: "No Data" }
           },
           queue: fsData?.queue,
           queueUpdatedAt: fsData?.queueUpdatedAt,

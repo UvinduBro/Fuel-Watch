@@ -30,19 +30,34 @@ interface StationCardProps {
   station: StationData;
 }
 
+function timeAgo(dateString: string) {
+  if (dateString === "No Data" || !dateString) return "No Data";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+  let interval = seconds / 31536000;
+  if (interval > 1) return Math.floor(interval) + " years ago";
+  interval = seconds / 2592000;
+  if (interval > 1) return Math.floor(interval) + " months ago";
+  interval = seconds / 86400;
+  if (interval > 1) return Math.floor(interval) + " days ago";
+  interval = seconds / 3600;
+  if (interval > 1) return Math.floor(interval) + " hours ago";
+  interval = seconds / 60;
+  if (interval > 1) return Math.floor(interval) + " mins ago";
+  return "just now";
+}
+
 const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
   <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
     <div className="flex items-center gap-3 font-bold text-sm text-foreground/90">
       <span className="text-xl leading-none">⛽</span> {label}
     </div>
-    <FuelStatusBadge status={fuel.status} />
+    <FuelStatusBadge status={fuel.status} lastUpdated={timeAgo(fuel.lastUpdatedAt)} />
   </div>
 );
 
 export function StationCard({ station }: StationCardProps) {
-  // We can consider the station "un-updated" if all fuels say "Just now" or if there is a specific field. We'll use updatedCount.
-  const hasUpdates = station.updatedCount > 0;
-
   return (
     <div className={cn(
       "glass-card rounded-2xl p-4 sm:p-5 flex flex-col gap-5 relative overflow-hidden transition-all hover:scale-[1.01] duration-300 border shadow-xl",
@@ -91,27 +106,11 @@ export function StationCard({ station }: StationCardProps) {
         <FuelRow label="Super Diesel" fuel={station.fuels.superDiesel} />
       </div>
 
-      {/* Warning / Status Box */}
-      {station.isNearest && (
-        <div className="flex items-start gap-3 px-4 py-3 bg-[#eab308]/10 dark:bg-[#ca8a04]/10 border border-[#eab308]/20 rounded-xl text-[#ca8a04] dark:text-[#fde047] text-xs sm:text-sm font-semibold mt-1 shadow-sm">
-          <Info className="w-5 h-5 shrink-0 mt-0.5" />
-          <div className="flex flex-col gap-1 leading-relaxed">
-            <span className="font-bold opacity-90">ඉන්ධන තත්ත්වය ජනතාව විසින් වාර්තා කරනු ලබන අතර මෑත කාලීන තත්ත්වය වෙනස් විය හැකිය.</span>
-            <span className="opacity-80">Fuel status is updated by the public and reflects recent user reports, though availability can change.</span>
-          </div>
-        </div>
-      )}
-      {!hasUpdates && !station.isNearest && (
-        <div className="px-4 py-3 bg-[#eab308]/10 dark:bg-[#ca8a04]/10 border border-[#eab308]/20 rounded-xl text-[#ca8a04] dark:text-[#fde047] text-xs font-semibold mt-1">
-          No fuel status updates in DB yet for this station.
-        </div>
-      )}
-
       {/* Footer Details */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 pt-4 border-t border-white/10 dark:border-white/5 gap-4">
         <div className="flex flex-col gap-1.5">
-          <div className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-blue-400" /> {station.updatedCount || 0} people updated this shed
+          <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:w-4 text-blue-400" /> {station.updatedCount || 0} people updated this shed
           </div>
           {station.queue && (
             <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">

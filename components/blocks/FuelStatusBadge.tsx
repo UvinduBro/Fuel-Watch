@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertTriangle, XCircle, Clock } from "lucide-react";
 
-export type FuelStatus = "available" | "low" | "out";
+export type FuelStatus = "available" | "low" | "out" | "none";
 
 interface FuelStatusBadgeProps {
   status: FuelStatus;
@@ -10,6 +10,11 @@ interface FuelStatusBadgeProps {
 
 export function FuelStatusBadge({ status, lastUpdated }: FuelStatusBadgeProps) {
   const statusConfig = {
+    none: {
+      color: "bg-white/5 text-muted-foreground border-white/10",
+      icon: Clock,
+      label: "No Data Available",
+    },
     available: {
       color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
       icon: CheckCircle2,
