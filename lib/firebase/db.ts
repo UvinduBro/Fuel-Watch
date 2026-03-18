@@ -62,6 +62,33 @@ export const updateFuelStatus = async (
   }
 };
 
+export const updateQueueStatus = async (
+  stationId: string,
+  queueStatus: "none" | "medium" | "long",
+  userId: string = "anonymous"
+) => {
+  try {
+    const stationRef = doc(db, "stations", stationId);
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+    await updateDoc(stationRef, {
+      queue: queueStatus,
+      queueUpdatedAt: timeString,
+    });
+
+    await addDoc(collection(db, "updates"), {
+      stationId,
+      queueStatus,
+      userId,
+      createdAt: now.toISOString(),
+    });
+  } catch (error) {
+    console.error("Error updating queue status:", error);
+    throw error;
+  }
+};
+
 export const toggleStationStatus = async (stationId: string, isOpen: boolean) => {
   try {
     const stationRef = doc(db, "stations", stationId);
