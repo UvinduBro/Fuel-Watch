@@ -82,13 +82,13 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
                 if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
                     resolve(mergeResults(results));
                 } else {
-                    resolve(firestoreStations); // Fallback
+                    resolve([]);
                 }
             });
         });
     }
 
-    // Proximity Nearby Search (for Map/Home page)
+    // Proximity Nearby Search (for Map/Home page when GPS is available)
     if (lat && lng) {
         return new Promise<StationData[]>((resolve) => {
             service.nearbySearch({
@@ -99,15 +99,36 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
                 if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
                     resolve(mergeResults(results));
                 } else {
-                    resolve(firestoreStations); // Fallback
+                    // Fall back to island-wide search if nearby fails
+                    service.textSearch({
+                        query: "fuel station in Sri Lanka"
+                    }, (r2, s2) => {
+                        resolve(s2 === window.google.maps.places.PlacesServiceStatus.OK && r2 ? mergeResults(r2) : []);
+                    });
                 }
             });
         });
     }
+
+    // Default fallback: island-wide search when no GPS and no search query
+    return new Promise<StationData[]>((resolve) => {
+        service.textSearch({
+            query: "fuel station in Sri Lanka"
+        }, (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+                resolve(mergeResults(results));
+            } else {
+                resolve([]);
+            }
+        });
+    });
   }
 
+  // Server-side or maps not loaded yet: return sanitized Firestore data
   const sanitizedStations = firestoreStations.map(station => ({
     ...station,
+    name: station.name || "Unknown Station",
+    address: station.address || "Sri Lanka",
     fuels: {
       petrol92: station.fuels?.petrol92 || { status: "none", lastUpdatedAt: "No Data" },
       petrol95: station.fuels?.petrol95 || { status: "none", lastUpdatedAt: "No Data" },
