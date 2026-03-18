@@ -49,10 +49,15 @@ export default function FuelSchedulePage() {
       </div>
 
       <div className="max-w-3xl mx-auto flex flex-col gap-8">
-        <header>
-          <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-medium mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Home
-          </Link>
+        <header className="mb-6 flex flex-col gap-2">
+          <div className="flex items-center gap-4 mb-4">
+             <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors">
+               <ArrowLeft className="w-4 h-4" /> Back to Map
+             </Link>
+             <Link href="/pass" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 text-sm font-bold transition-colors">
+               📱 Wallet Pass
+             </Link>
+          </div>
           <h1 className="text-3xl font-extrabold tracking-tight">Fuel Quota Schedule</h1>
           <p className="text-muted-foreground mt-1 font-medium">Check your allowed pumping dates based on Sri Lanka&apos;s plate system.</p>
         </header>
