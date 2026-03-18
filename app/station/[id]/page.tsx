@@ -237,8 +237,10 @@ export default function StationDetail({ params }: { params: { id: string } }) {
 
           <div className="flex flex-col gap-3">
             {fuelOptions.map(opt => {
-               const safeFuel = hasUpdates && station.fuels[opt.key] ? station.fuels[opt.key] : { status: "none", lastUpdatedAt: "No Data" };
-               return <FuelRow key={opt.key} label={opt.label} fuel={safeFuel as any} />;
+               const safeFuel: { status: FuelStatus; lastUpdatedAt: string } = hasUpdates && station.fuels[opt.key] 
+                 ? station.fuels[opt.key] 
+                 : { status: "none", lastUpdatedAt: "No Data" };
+               return <FuelRow key={opt.key} label={opt.label} fuel={safeFuel} />;
             })}
           </div>
         </div>
