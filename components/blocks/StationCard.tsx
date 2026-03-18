@@ -23,6 +23,7 @@ export interface StationData {
   queue?: QueueStatus;
   queueUpdatedAt?: string;
   updatedCount: number;
+  isNearest?: boolean;
 }
 
 interface StationCardProps {
@@ -43,7 +44,12 @@ export function StationCard({ station }: StationCardProps) {
   const hasUpdates = station.updatedCount > 0;
 
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-5 flex flex-col gap-5 relative overflow-hidden transition-all hover:scale-[1.01] duration-300 border border-white/10 shadow-xl">
+    <div className={cn(
+      "glass-card rounded-2xl p-4 sm:p-5 flex flex-col gap-5 relative overflow-hidden transition-all hover:scale-[1.01] duration-300 border shadow-xl",
+      station.isNearest 
+        ? "border-primary/50 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)] ring-1 ring-primary/20" 
+        : "border-white/10"
+    )}>
       {/* Top Banner Row */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">

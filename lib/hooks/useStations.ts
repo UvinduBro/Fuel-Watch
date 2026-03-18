@@ -33,9 +33,17 @@ export function useStations(userLat?: number, userLng?: number) {
 
       return { ...station, distance };
     }).sort((a, b) => (a.distance || 0) - (b.distance || 0));
+
+    // Flag the nearest station
+    if (stations.length > 0) {
+      stations = [
+        { ...stations[0], isNearest: true },
+        ...stations.slice(1).map(s => ({ ...s, isNearest: false }))
+      ];
+    }
   } else {
     // If no explicit distance available, defaults are 0 and sorted by name
-    stations = stations.map(s => ({ ...s, distance: 0 })).sort((a, b) => a.name.localeCompare(b.name));
+    stations = stations.map(s => ({ ...s, distance: 0, isNearest: false })).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   return {

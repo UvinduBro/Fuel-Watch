@@ -84,7 +84,11 @@ export function MapComponent({ stations, userLocation }: MapProps) {
             position={{ lat: station.location.lat, lng: station.location.lng }}
             onClick={() => setActiveStation(station)}
             icon={{
-              url: station.isOpen ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png" : "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+              url: station.isNearest 
+                ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" 
+                : station.isOpen 
+                  ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png" 
+                  : "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
             }}
           />
         ))}
