@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { getStationById, updateFuelStatus, updateQueueStatus } from "@/lib/firebase/db";
 import { StationData, FuelMap } from "@/components/blocks/StationCard";
 import { FuelStatusBadge, FuelStatus } from "@/components/blocks/FuelStatusBadge";
-import { MapPin, Navigation, ArrowLeft, Loader2, CheckCircle2, Clock, Users } from "lucide-react";
+import { MapPin, ArrowLeft, Loader2, CheckCircle2, Clock, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 

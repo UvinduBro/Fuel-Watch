@@ -51,7 +51,7 @@ export default function AllStationsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="glass-panel p-12 text-center flex flex-col items-center border-dashed border-white/20 rounded-2xl">
-            <p className="text-muted-foreground font-medium text-lg">No stations found matching "{search}".</p>
+            <p className="text-muted-foreground font-medium text-lg">No stations found matching &quot;{search}&quot;.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
