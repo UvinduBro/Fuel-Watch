@@ -7,6 +7,7 @@ import { useStations } from "@/lib/hooks/useStations";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 
 const MapComponent = dynamic(() => import("@/components/blocks/MapComponent").then(m => m.MapComponent), {
   ssr: false,
@@ -40,6 +41,11 @@ export default function Home() {
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Fuel Watch</h1>
           <p className="text-muted-foreground mt-1">Real-time crowdsourced fuel availability</p>
+        </div>
+        <div className="flex items-center gap-3 mt-4 sm:mt-0">
+          <Link href="/stations" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
+            View All Stations
+          </Link>
         </div>
       </header>
 
