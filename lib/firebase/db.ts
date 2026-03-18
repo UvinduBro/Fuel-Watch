@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, updateDoc, addDoc, query, where, orderBy } from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, updateDoc, addDoc, query } from "firebase/firestore";
 import { db } from "./config";
 import { StationData } from "@/components/blocks/StationCard";
 import { FuelStatus } from "@/components/blocks/FuelStatusBadge";
