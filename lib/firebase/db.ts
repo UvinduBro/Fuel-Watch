@@ -47,7 +47,8 @@ export const getStations = async (): Promise<StationData[]> => {
 
 export const getStationById = async (id: string): Promise<StationData | null> => {
   try {
-    const docRef = doc(db, "stations", id);
+    const cleanId = id.replace(/\//g, "-");
+    const docRef = doc(db, "stations", cleanId);
     const snapshot = await getDoc(docRef);
     if (snapshot.exists()) {
       return { id: snapshot.id, ...snapshot.data() } as StationData;
@@ -66,11 +67,12 @@ export const updateFuelStatus = async (
   userId: string = "anonymous"
 ) => {
   try {
-    const stationRef = doc(db, "stations", stationId);
+    const cleanId = stationId.replace(/\//g, "-");
+    const stationRef = doc(db, "stations", cleanId);
     
     const now = new Date();
-    // 12-hour format for last updated e.g. "2:30 PM"
-    const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    // Use ISO string so frontend can calculate 'timeAgo' accurately
+    const timeString = now.toISOString();
 
     const stationDoc = await getDoc(stationRef);
     const currentUpdatedCount = stationDoc.exists() ? (stationDoc.data()?.updatedCount || 0) : 0;
@@ -106,9 +108,10 @@ export const updateQueueStatus = async (
   userId: string = "anonymous"
 ) => {
   try {
-    const stationRef = doc(db, "stations", stationId);
+    const cleanId = stationId.replace(/\//g, "-");
+    const stationRef = doc(db, "stations", cleanId);
     const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const timeString = now.toISOString();
 
     const stationDoc = await getDoc(stationRef);
     const currentUpdatedCount = stationDoc.exists() ? (stationDoc.data()?.updatedCount || 0) : 0;
@@ -134,7 +137,8 @@ export const updateQueueStatus = async (
 
 export const toggleStationStatus = async (stationId: string, isOpen: boolean) => {
   try {
-    const stationRef = doc(db, "stations", stationId);
+    const cleanId = stationId.replace(/\//g, "-");
+    const stationRef = doc(db, "stations", cleanId);
     await updateDoc(stationRef, { isOpen });
   } catch (error) {
     console.error("Error toggling status:", error);

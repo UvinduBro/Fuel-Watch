@@ -13,7 +13,7 @@ const fetcher = async (lat?: number, lng?: number, searchQuery?: string) => {
   const mergeResults = (results: google.maps.places.PlaceResult[]) => {
       const validStations = results.filter(p => p.name && !isLPGas(p.name));
       return validStations.map(place => {
-        const placeId = place.place_id || place.name || "";
+        const placeId = (place.place_id || place.name || "").replace(/\//g, "-");
         const fsData = firestoreStations.find(fs => fs.id === placeId || fs.name === place.name);
         
         return {

@@ -8,14 +8,7 @@ import { MapPin, ArrowLeft, Loader2, CheckCircle2, Clock, Users } from "lucide-r
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
-  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10">
-    <div className="flex items-center gap-3 font-bold text-sm text-foreground/90">
-      <span className="text-xl leading-none">⛽</span> {label}
-    </div>
-    <FuelStatusBadge status={fuel.status} />
-  </div>
-);
+
 
 export default function StationDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -91,7 +84,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
           ...prev,
           fuels: {
             ...prev.fuels,
-            [selectedFuel]: { status: selectedStatus, lastUpdatedAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) }
+            [selectedFuel]: { status: selectedStatus, lastUpdatedAt: new Date().toISOString() }
           }
         };
       });
@@ -116,7 +109,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
         return {
           ...prev,
           queue: selectedQueue,
-          queueUpdatedAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+          queueUpdatedAt: new Date().toISOString()
         };
       });
       setTimeout(() => setQueueSuccess(false), 3000);
@@ -144,6 +137,33 @@ export default function StationDetail({ params }: { params: { id: string } }) {
   ];
 
   const hasUpdates = station.updatedCount > 0;
+  
+  function timeAgo(dateString: string) {
+    if (dateString === "No Data" || !dateString) return "No Data";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " mins ago";
+    return "just now";
+  }
+
+  const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
+    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+      <div className="flex items-center gap-3 font-bold text-sm text-foreground/90">
+        <span className="text-xl leading-none">⛽</span> {label}
+      </div>
+      <FuelStatusBadge status={fuel.status} lastUpdated={timeAgo(fuel.lastUpdatedAt)} />
+    </div>
+  );
 
   return (
     <main className="min-h-screen pb-20 relative">
@@ -197,7 +217,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
 
           <div className="flex flex-col gap-3">
             {fuelOptions.map(opt => (
-               <FuelRow key={opt.key} label={opt.label} fuel={station.fuels[opt.key]} />
+               <FuelRow key={opt.key} label={opt.label} fuel={hasUpdates ? station.fuels[opt.key] : { status: "none", lastUpdatedAt: "No Data" }} />
             ))}
           </div>
         </div>
@@ -210,8 +230,8 @@ export default function StationDetail({ params }: { params: { id: string } }) {
           <div className="flex items-center gap-4 p-4 rounded-xl bg-black/20 border border-white/5">
              <div className="text-3xl">🚦</div>
              <div className="flex flex-col">
-               <span className="font-bold text-foreground">Current Queue: <span className={cn("uppercase", station.queue === "none" ? "text-emerald-500" : station.queue === "medium" ? "text-amber-500" : "text-rose-500")}>{station.queue || "Unknown"}</span></span>
-               {station.queueUpdatedAt && <span className="text-xs text-muted-foreground mt-0.5">Last updated: {station.queueUpdatedAt}</span>}
+               <span className="font-bold text-foreground">Current Queue: <span className={cn("uppercase", station.queue === "none" ? "text-emerald-500" : station.queue === "medium" ? "text-amber-500" : station.queue === "long" ? "text-rose-500" : "text-muted-foreground")}>{station.queue || "Unknown"}</span></span>
+               {station.queueUpdatedAt && <span className="text-xs text-muted-foreground mt-0.5">Last updated: {timeAgo(station.queueUpdatedAt)}</span>}
              </div>
           </div>
         </div>
