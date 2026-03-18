@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2, LogOut, Plus, Trash2, Power, Map } from "lucide-react";
 import { useStations } from "@/lib/hooks/useStations";
-import { toggleStationStatus, db } from "@/lib/firebase/db";
+import { toggleStationStatus } from "@/lib/firebase/db";
+import { db } from "@/lib/firebase/config";
 import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { useLoadScript } from "@react-google-maps/api";
 
