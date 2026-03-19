@@ -11,6 +11,7 @@ import { db } from "@/lib/firebase/config";
 import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { useLoadScript } from "@react-google-maps/api";
 import { StatusChart, MiniBarChart } from "@/components/admin/StatsCharts";
+import { AnalyticsTab } from "@/components/admin/AnalyticsTab";
 
 interface AnalyticsSummary {
   totalStations: number;
@@ -47,7 +48,7 @@ export default function AdminDashboard() {
   const [isIslandScanning, setIsIslandScanning] = useState(false);
   
   // Analytics State
-  const [activeTab, setActiveTab ] = useState<"overview" | "stations" | "history">("overview");
+  const [activeTab, setActiveTab ] = useState<"overview" | "stations" | "history" | "analytics">("overview");
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [recentUpdates, setRecentUpdates] = useState<FuelUpdate[]>([]);
   
@@ -284,10 +285,11 @@ export default function AdminDashboard() {
                 { id: "overview", label: "Overview" },
                 { id: "stations", label: "Stations" },
                 { id: "history", label: "History" },
+                { id: "analytics", label: "Analytics" },
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as "overview" | "stations" | "history")}
+                  onClick={() => setActiveTab(tab.id as "overview" | "stations" | "history" | "analytics")}
                   className={cn(
                     "pb-2 text-sm font-bold transition-all border-b-2",
                     activeTab === tab.id 
@@ -516,6 +518,10 @@ export default function AdminDashboard() {
               </table>
             </div>
           </section>
+        )}
+
+        {activeTab === "analytics" && (
+          <AnalyticsTab />
         )}
 
         <section className="mt-12 pt-8 border-t border-rose-500/20">
