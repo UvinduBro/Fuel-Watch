@@ -20,6 +20,12 @@ export async function GET() {
 
   try {
     const parsedCredentials = JSON.parse(credentials);
+    
+    // Fix: Normalize escaped newlines in the private key if present as literal strings
+    if (parsedCredentials.private_key) {
+      parsedCredentials.private_key = parsedCredentials.private_key.replace(/\\n/g, "\n");
+    }
+
     const analyticsDataClient = new BetaAnalyticsDataClient({ credentials: parsedCredentials });
 
     // Run multiple GA4 reports in parallel
