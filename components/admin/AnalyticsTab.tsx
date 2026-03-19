@@ -37,25 +37,26 @@ export function AnalyticsTab() {
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
-  if (error || !data) return (
-    <div className="glass-panel p-8 rounded-3xl text-center border border-rose-500/20">
-      <p className="text-rose-400 font-bold">Failed to load analytics: {error}</p>
+  if (error || (data && !(data as any).configured && (data as any).error)) return (
+    <div className="glass-panel p-8 rounded-3xl text-center border border-rose-500/30 bg-rose-500/5">
+      <p className="text-rose-400 font-bold mb-2">Failed to load analytics</p>
+      <p className="text-rose-400/80 text-xs font-mono break-all">{error || (data as any)?.error}</p>
     </div>
   );
 
-  if (!data.configured) return (
+  if (!data || !data.configured) return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-      <div className="glass-panel p-8 rounded-3xl border border-amber-500/20 flex flex-col gap-4">
+      <div className="glass-panel p-8 rounded-3xl border border-amber-500/30 bg-amber-500/5 flex flex-col gap-4">
         <h2 className="text-xl font-bold text-amber-500 flex items-center gap-2"><BarChart3 className="w-5 h-5" /> Google Analytics Not Configured</h2>
-        <p className="text-muted-foreground text-sm font-medium leading-relaxed">{data.message}</p>
-        <div className="mt-4 p-4 rounded-xl bg-black/40 border border-white/10">
+        <p className="text-muted-foreground text-sm font-medium leading-relaxed">{data?.message}</p>
+        <div className="mt-4 p-4 rounded-xl bg-muted border border-border">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Setup Instructions</p>
           <ol className="text-sm text-foreground/80 font-medium space-y-2 list-decimal list-inside">
             <li>Go to <a href="https://analytics.google.com" target="_blank" className="text-primary underline">Google Analytics</a> → Admin → Property Settings → Copy the <strong>Property ID</strong> (numeric).</li>
             <li>Go to <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" className="text-primary underline">Google Cloud Console</a> → Create a Service Account → Create a JSON key.</li>
             <li>In GA Admin → Property Access Management → Add the service account email with <strong>Viewer</strong> role.</li>
-            <li>Add these to your <code className="bg-white/10 px-1.5 py-0.5 rounded text-xs">.env.local</code>:
-              <pre className="mt-2 p-3 bg-black/60 rounded-lg text-xs font-mono overflow-x-auto border border-white/5">
+            <li>Add these to your <code className="bg-muted px-1.5 py-0.5 rounded text-xs border border-border">.env.local</code>:
+              <pre className="mt-2 p-3 bg-muted/80 rounded-lg text-xs font-mono overflow-x-auto border border-border shadow-inner">
 {`GA_PROPERTY_ID="123456789"
 GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
               </pre>
@@ -80,7 +81,7 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
           { label: "Sessions", value: summary.totalSessions.toLocaleString(), icon: TrendingUp, color: "text-purple-500", sub: "Last 30 days" },
           { label: "Avg Duration", value: `${Math.round(summary.avgSessionDuration)}s`, icon: Clock, color: "text-amber-500", sub: "Per session" },
         ].map((stat, i) => (
-          <div key={i} className="glass-panel p-6 rounded-3xl border border-white/10 flex flex-col gap-1">
+          <div key={i} className="glass-panel p-6 rounded-3xl border border-border flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start">
               <stat.icon className={cn("w-5 h-5", stat.color)} />
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.sub}</span>
@@ -94,7 +95,7 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daily Traffic Chart */}
-        <div className="lg:col-span-2 glass-panel p-6 rounded-3xl border border-white/10">
+        <div className="lg:col-span-2 glass-panel p-6 rounded-3xl border border-border">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Daily Traffic (14 days)</h3>
           </div>
@@ -103,9 +104,9 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
               <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
                 <div
                   style={{ height: `${(day.pageviews / maxDailyViews) * 100}%` }}
-                  className="w-full bg-primary/30 group-hover:bg-primary/70 rounded-t-lg transition-all duration-500 relative cursor-help border-t border-x border-white/10 min-h-[2px]"
+                  className="w-full bg-primary/30 group-hover:bg-primary/70 rounded-t-lg transition-all duration-500 relative cursor-help border-t border-x border-border min-h-[2px]"
                 >
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-[8px] font-black px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-10">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[8px] font-black px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-10">
                     {day.pageviews} views • {day.users} users
                   </div>
                 </div>
@@ -116,7 +117,7 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
         </div>
 
         {/* Device Breakdown */}
-        <div className="glass-panel p-6 rounded-3xl border border-white/10 flex flex-col gap-4">
+        <div className="glass-panel p-6 rounded-3xl border border-border flex flex-col gap-4 shadow-sm">
           <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Devices</h3>
           <div className="flex flex-col gap-3 flex-1 justify-center">
             {deviceBreakdown.map((device, i) => {
@@ -129,7 +130,7 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
                     </span>
                     <span className="text-xs font-mono font-bold text-muted-foreground">{pct}%</span>
                   </div>
-                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden shadow-inner">
                     <div className="h-full bg-primary/60 rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
@@ -142,9 +143,9 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Pages  */}
-        <div className="glass-panel p-6 rounded-3xl border border-white/10">
+        <div className="glass-panel p-6 rounded-3xl border border-border">
           <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">Top Pages</h3>
-          <div className="flex flex-col divide-y divide-white/5">
+          <div className="flex flex-col divide-y divide-border/50">
             {topPages.map((page, i) => (
               <div key={i} className="flex items-center justify-between py-3 group">
                 <span className="text-sm font-bold text-foreground/80 truncate max-w-[250px] group-hover:text-foreground transition-colors">{page.page}</span>
@@ -159,9 +160,9 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
         </div>
 
         {/* Countries */}
-        <div className="glass-panel p-6 rounded-3xl border border-white/10">
+        <div className="glass-panel p-6 rounded-3xl border border-border">
           <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">Top Countries</h3>
-          <div className="flex flex-col divide-y divide-white/5">
+          <div className="flex flex-col divide-y divide-border/50">
             {countryBreakdown.map((country, i) => (
               <div key={i} className="flex items-center justify-between py-3">
                 <span className="text-sm font-bold text-foreground/80 flex items-center gap-2">
@@ -180,7 +181,7 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type":"service_account",...}'`}
         href={`https://analytics.google.com`}
         target="_blank"
         rel="noopener noreferrer"
-        className="glass-panel p-5 rounded-2xl border border-white/10 hover:bg-white/5 transition-colors flex items-center justify-between group"
+        className="glass-panel p-5 rounded-2xl border border-border hover:bg-muted transition-all flex items-center justify-between group shadow-sm hover:shadow-md"
       >
         <div className="flex items-center gap-3">
           <BarChart3 className="w-5 h-5 text-primary" />

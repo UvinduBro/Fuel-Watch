@@ -90,13 +90,13 @@ export default function Home() {
         <div className="flex flex-col items-end gap-3 mt-4 sm:mt-0">
           <SettingsToggle />
           <div className="flex items-center gap-3">
-            <Link href="/pass" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
+            <Link href="/pass" className="px-5 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl text-sm font-bold transition-all border border-border shadow-sm flex items-center gap-2">
               {t("nav.walletPass")}
             </Link>
-            <Link href="/schedule" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
+            <Link href="/schedule" className="px-5 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl text-sm font-bold transition-all border border-border shadow-sm flex items-center gap-2">
               {t("nav.fuelSchedule")}
             </Link>
-            <Link href="/stations" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
+            <Link href="/stations" className="px-5 py-2.5 bg-secondary/50 hover:bg-secondary rounded-xl text-sm font-bold transition-all border border-border shadow-sm flex items-center gap-2">
               {t("nav.allStations")}
             </Link>
           </div>
@@ -132,7 +132,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4 lg:mt-0">
               <h2 className="text-xl font-bold flex items-center gap-3">
                 {t("home.nearbyStations")}
-                <span className="text-xs font-semibold text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
+                <span className="text-xs font-semibold text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full border border-border">
                   {filteredStations.length} {t("home.found")}
                 </span>
               </h2>
@@ -141,7 +141,7 @@ export default function Home() {
             <div className="flex flex-col gap-2.5 mb-2 mt-1">
               <span className="text-xs font-bold text-muted-foreground">{t("filter.filter")}</span>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex items-center gap-2 bg-black/20 dark:bg-black/20 p-1 rounded-full border border-white/5 w-fit">
+                <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-full border border-border w-fit">
                   {[
                     { key: "All", label: t("fuel.all") },
                     { key: "Petrol", label: t("fuel.petrol") },
@@ -150,7 +150,7 @@ export default function Home() {
                     <button
                       key={f.key}
                       onClick={() => setFuelFilter(f.key)}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${fuelFilter === f.key ? 'bg-white/10 text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${fuelFilter === f.key ? 'bg-background text-foreground shadow-sm border border-border' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
                     >
                       {f.label}
                     </button>
@@ -159,7 +159,7 @@ export default function Home() {
                 <select
                   value={availabilityFilter}
                   onChange={(e) => setAvailabilityFilter(e.target.value)}
-                  className="bg-black/40 dark:bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 h-8 w-fit"
+                  className="bg-muted border border-border rounded-xl px-3 py-1.5 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 h-8 w-fit"
                 >
                   <option value="All Availability">{t("availability.all")}</option>
                   <option value="Available">{t("availability.available")}</option>

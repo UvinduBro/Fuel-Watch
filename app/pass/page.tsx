@@ -4,7 +4,6 @@ import { ArrowLeft, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-
 export default function PassPage() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -16,7 +15,7 @@ export default function PassPage() {
       </div>
 
        <div className="max-w-4xl mx-auto flex flex-col gap-6 w-full flex-1">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-6 mt-8">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-6 mt-8">
           <div>
             <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-medium mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back to Map
@@ -29,11 +28,11 @@ export default function PassPage() {
           </div>
         </header>
 
-        <section className="glass-panel rounded-2xl border border-white/10 relative w-full h-[calc(100vh-180px)] min-h-[600px] overflow-hidden shadow-2xl p-0">
+        <section className="glass-panel rounded-2xl border border-border relative w-full h-[calc(100vh-180px)] min-h-[600px] overflow-hidden shadow-2xl p-0">
            {isLoading && (
-               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm z-10 gap-4">
+               <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm z-10 gap-4 transition-all duration-500">
                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                   <p className="font-bold text-sm text-white/80">Connecting to Hayaku.lk...</p>
+                   <p className="font-bold text-sm text-foreground/80 tracking-tight">Connecting to Hayaku.lk...</p>
                </div>
            )}
            <iframe 

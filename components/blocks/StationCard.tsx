@@ -34,7 +34,7 @@ interface StationCardProps {
 }
 
 const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
-  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors">
     <div className="flex items-center gap-3 font-bold text-sm text-foreground/90">
       <span className="text-xl leading-none">⛽</span> {label}
     </div>
@@ -50,23 +50,23 @@ export function StationCard({ station }: StationCardProps) {
       "glass-card rounded-2xl p-4 sm:p-5 flex flex-col gap-5 relative overflow-hidden transition-all hover:scale-[1.01] duration-300 border shadow-xl",
       station.isNearest 
         ? "border-primary/50 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)] ring-1 ring-primary/20" 
-        : "border-white/10"
+        : "border-border"
     )}>
       {/* Top Banner Row */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           {station.distance > 0 && (
-            <span className="bg-black text-white dark:bg-white dark:text-black text-[10px] sm:text-xs px-2.5 py-1 rounded-full font-black tracking-wider flex items-center gap-1.5 shadow-sm">
+            <span className="bg-primary text-primary-foreground text-[10px] sm:text-xs px-2.5 py-1 rounded-full font-black tracking-wider flex items-center gap-1.5 shadow-sm">
               <MapPin className="w-3 h-3" /> {t("station.nearest")}
             </span>
           )}
           {station.distance > 0 && (
-            <span className="bg-white/10 text-foreground text-xs px-2.5 py-1 rounded-full font-bold border border-white/10 shadow-sm backdrop-blur-md">
+            <span className="bg-muted/50 text-foreground text-xs px-2.5 py-1 rounded-full font-bold border border-border shadow-sm backdrop-blur-md">
               {station.distance.toFixed(1)} {t("station.kmAway")}
             </span>
           )}
           {station.distance === 0 && (
-             <span className="bg-white/10 text-foreground text-xs px-2.5 py-1 rounded-full font-bold border border-white/10 shadow-sm backdrop-blur-md">
+             <span className="bg-muted/50 text-foreground text-xs px-2.5 py-1 rounded-full font-bold border border-border shadow-sm backdrop-blur-md">
              {t("station.islandWide")}
              </span>
           )}
@@ -106,7 +106,7 @@ export function StationCard({ station }: StationCardProps) {
       </div>
 
       {/* Footer Details */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 pt-4 border-t border-white/10 dark:border-white/5 gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 pt-4 border-t border-border gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 sm:w-4 sm:w-4 text-blue-400" /> {station.updatedCount || 0} {t("station.peopleUpdated")}
@@ -116,7 +116,7 @@ export function StationCard({ station }: StationCardProps) {
         <div className="flex gap-2 w-full sm:w-auto">
           <Link 
             href={`/station/${station.id}`}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-bold transition-colors border border-white/10"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-secondary/50 hover:bg-secondary text-sm font-bold transition-colors border border-border"
           >
             <Info className="w-4 h-4" />
             {t("station.details")}

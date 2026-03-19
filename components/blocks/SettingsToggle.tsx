@@ -39,7 +39,7 @@ export function SettingsToggle() {
   return (
     <div className="flex items-center gap-2">
       {/* Theme Toggle */}
-      <div className="flex items-center bg-black/20 dark:bg-white/5 p-1 rounded-full border border-white/10 dark:border-white/10 shadow-sm">
+      <div className="flex items-center bg-muted/50 p-1 rounded-full border border-border shadow-sm">
         {themeOptions.map((opt) => (
           <button
             key={opt.value}
@@ -47,8 +47,8 @@ export function SettingsToggle() {
             className={cn(
               "p-2 rounded-full transition-all",
               theme === opt.value
-                ? "bg-white/20 dark:bg-white/15 text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                ? "bg-background text-foreground shadow-sm border border-border"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
             )}
             title={opt.label}
           >
@@ -61,7 +61,7 @@ export function SettingsToggle() {
       <div className="relative" ref={langRef}>
         <button
           onClick={() => setShowLangMenu(!showLangMenu)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/20 dark:bg-white/5 border border-white/10 dark:border-white/10 text-xs font-bold transition-all hover:bg-white/10 shadow-sm"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-muted/50 border border-border text-xs font-bold transition-all hover:bg-muted shadow-sm"
         >
           <Globe className="w-3.5 h-3.5" />
           <span>{langLabels[locale].flag} {langLabels[locale].label}</span>
@@ -69,7 +69,7 @@ export function SettingsToggle() {
         </button>
 
         {showLangMenu && (
-          <div className="absolute right-0 mt-2 w-40 bg-popover border border-white/10 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute right-0 mt-2 w-40 bg-popover border border-border rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
             {(["en", "si", "ta"] as Locale[]).map((lang) => (
               <button
                 key={lang}
@@ -78,7 +78,7 @@ export function SettingsToggle() {
                   "w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-colors",
                   locale === lang
                     ? "bg-primary/10 text-primary"
-                    : "text-foreground/80 hover:bg-white/5"
+                    : "text-foreground/80 hover:bg-muted"
                 )}
               >
                 <span className="text-lg">{langLabels[lang].flag}</span>

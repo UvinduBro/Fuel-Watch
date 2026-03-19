@@ -169,7 +169,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
   const hasUpdates = station.updatedCount > 0;
 
   const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
-    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors">
       <div className="flex items-center gap-3 font-bold text-sm text-foreground/90">
         <span className="text-xl leading-none">⛽</span> {label}
       </div>
@@ -189,7 +189,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
         </button>
 
         {/* Top Header Card */}
-        <div className="glass-panel p-6 sm:p-8 flex flex-col gap-5 border border-white/10 shadow-xl rounded-3xl">
+        <div className="glass-panel p-6 sm:p-8 flex flex-col gap-5 border border-border shadow-xl rounded-3xl">
           <div className="flex justify-between items-start gap-4">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{station.name}</h1>
             <div className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-bold border shadow-sm ${station.isOpen ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"}`}>
@@ -208,14 +208,14 @@ export default function StationDetail({ params }: { params: { id: string } }) {
           </div>
           <button
             onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(station.address)}`, "_blank")}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 font-bold transition-colors mt-2 border border-white/10 shadow-sm text-foreground/90"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-secondary/50 hover:bg-secondary font-bold transition-all mt-2 border border-border shadow-sm text-foreground/90"
           >
             🗺 Get Directions
           </button>
         </div>
 
         {/* FUEL AVAILABILITY Section */}
-        <div className="mt-6 glass-panel p-6 sm:p-8 rounded-3xl border border-white/10">
+        <div className="mt-6 glass-panel p-6 sm:p-8 rounded-3xl border border-border">
           <h2 className="text-sm font-bold tracking-widest text-muted-foreground uppercase mb-6 flex justify-between items-center">
             Fuel Availability
             <span className="text-xs normal-case font-medium flex items-center gap-1"><Users className="w-3.5 h-3.5 text-blue-400" /> {station.updatedCount}</span>
@@ -238,11 +238,11 @@ export default function StationDetail({ params }: { params: { id: string } }) {
         </div>
 
         {/* QUEUE STATUS Section */}
-        <div className="mt-6 glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 shadow-xl relative overflow-hidden">
+        <div className="mt-6 glass-panel p-6 sm:p-8 rounded-3xl border border-border shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 pointer-events-none" />
           <h2 className="text-sm font-bold tracking-widest text-muted-foreground uppercase mb-6">Queue Status</h2>
           
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-black/20 border border-white/5">
+          <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 border border-border">
              <div className="text-3xl">🚦</div>
              <div className="flex flex-col">
                <span className="font-bold text-foreground">Current Queue: <span className={cn("uppercase", station.queue === "none" ? "text-emerald-500" : station.queue === "medium" ? "text-amber-500" : station.queue === "long" ? "text-rose-500" : "text-muted-foreground")}>{station.queue || "Unknown"}</span></span>
@@ -266,7 +266,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                 <div className="flex flex-col gap-2.5">
                   <label className="text-xs font-bold tracking-wide text-muted-foreground">Fuel Type</label>
                   <select 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none"
+                    className="w-full bg-muted border border-border rounded-xl px-4 py-3.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none shadow-sm"
                     value={selectedFuel}
                     onChange={(e) => setSelectedFuel(e.target.value as keyof FuelMap)}
                   >
@@ -282,7 +282,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                         key={status}
                         type="button"
                         onClick={() => setSelectedStatus(status)}
-                        className={`flex items-center gap-3 py-4 border-b border-white/5 transition-all text-left group`}
+                        className={`flex items-center gap-3 py-4 border-b border-border transition-all text-left group`}
                       >
                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedStatus === status ? "border-primary" : "border-muted-foreground/50 group-hover:border-white/50"}`}>
                             {selectedStatus === status && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
@@ -298,7 +298,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-xl bg-white text-black hover:bg-neutral-200 font-extrabold tracking-wide transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl"
+                  className="w-full py-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-extrabold tracking-wide transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl"
                 >
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Submit Update"}
                 </button>
@@ -322,7 +322,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                     <button
                       type="button"
                       onClick={() => setSelectedQueue("none")}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${selectedQueue === "none" ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500" : "bg-black/40 border-white/5 text-muted-foreground hover:bg-white/5 hover:border-white/10"}`}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${selectedQueue === "none" ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500" : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"}`}
                     >
                       <span className="text-3xl">🏃</span>
                       <span className="text-xs font-bold text-center">No Queue</span>
@@ -330,7 +330,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                     <button
                       type="button"
                       onClick={() => setSelectedQueue("medium")}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${selectedQueue === "medium" ? "bg-amber-500/20 border-amber-500/50 text-amber-500" : "bg-black/40 border-white/5 text-muted-foreground hover:bg-white/5 hover:border-white/10"}`}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${selectedQueue === "medium" ? "bg-amber-500/20 border-amber-500/50 text-amber-500" : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"}`}
                     >
                       <span className="text-3xl">🚶‍♂️🚶</span>
                       <span className="text-xs font-bold text-center">Medium</span>
@@ -338,7 +338,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                     <button
                       type="button"
                       onClick={() => setSelectedQueue("long")}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${selectedQueue === "long" ? "bg-rose-500/20 border-rose-500/50 text-rose-500" : "bg-black/40 border-white/5 text-muted-foreground hover:bg-white/5 hover:border-white/10"}`}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${selectedQueue === "long" ? "bg-rose-500/20 border-rose-500/50 text-rose-500" : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"}`}
                     >
                       <span className="text-3xl">🚗🚓🚕</span>
                       <span className="text-xs font-bold text-center">Long Queue</span>
@@ -349,7 +349,7 @@ export default function StationDetail({ params }: { params: { id: string } }) {
                 <button 
                   type="submit" 
                   disabled={isSubmittingQueue}
-                  className="w-full py-4 mt-2 rounded-xl bg-white text-black hover:bg-neutral-200 font-extrabold tracking-wide transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl"
+                  className="w-full py-4 mt-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-extrabold tracking-wide transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl"
                 >
                   {isSubmittingQueue ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Queue"}
                 </button>

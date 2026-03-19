@@ -294,7 +294,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-6xl mx-auto flex flex-col gap-8">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-white/10 pb-8 mt-8">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-border pb-8 mt-8">
           <div className="flex flex-col gap-1">
             <h1 className="text-3xl font-extrabold tracking-tight">Admin Dashboard</h1>
             <div className="flex items-center gap-6 mt-4">
@@ -321,7 +321,7 @@ export default function AdminDashboard() {
           </div>
           <button 
             onClick={signOut}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-semibold transition-colors border border-white/10 focus:outline-none focus:ring-2 focus:ring-white/20"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary/50 hover:bg-secondary text-sm font-semibold transition-colors border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <LogOut className="w-4 h-4" /> Sign Out
           </button>
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
                 { label: "Live Updates", value: recentUpdates.length, icon: Activity, color: "text-purple-500" },
                 { label: "Avg Updates/Station", value: analytics?.totalStations ? (analytics.totalUpdates / analytics.totalStations).toFixed(1) : 0, icon: Fuel, color: "text-amber-500" },
               ].map((stat, i) => (
-                <div key={i} className="glass-panel p-6 rounded-3xl border border-white/10 flex flex-col gap-1">
+                <div key={i} className="glass-panel p-6 rounded-3xl border border-border flex flex-col gap-1">
                   <div className="flex justify-between items-start">
                     <stat.icon className={cn("w-5 h-5", stat.color)} />
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status: Live</span>
@@ -377,16 +377,16 @@ export default function AdminDashboard() {
 
         {activeTab === "stations" && (
           <section className="flex flex-col gap-6 animate-in fade-in duration-500">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-black/20 p-4 rounded-2xl border border-white/5 shadow-inner">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-muted/50 p-4 rounded-2xl border border-border shadow-inner">
               <h2 className="text-xl font-bold tracking-tight px-2 flex items-center gap-3">
                 Registered Stations 
-                <span className="text-xs px-2.5 py-1 bg-white/10 text-white rounded-full font-mono">{stations.length}</span>
+                <span className="text-xs px-2.5 py-1 bg-primary/10 text-primary rounded-full font-mono">{stations.length}</span>
               </h2>
               <div className="flex items-center gap-2 flex-wrap justify-end">
                 <button 
                   onClick={discoverStations}
                   disabled={isDiscovering || isIslandScanning || !isLoaded}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white text-sm font-bold hover:bg-white/20 transition-all border border-white/20 disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary/50 text-foreground text-sm font-bold hover:bg-secondary transition-all border border-border disabled:opacity-50"
                 >
                   {isDiscovering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Map className="w-4 h-4" />} 
                   {isDiscovering ? "Scanning..." : "Scan Nearby"}
@@ -409,22 +409,22 @@ export default function AdminDashboard() {
             </div>
 
             {showAddForm && (
-              <form onSubmit={handleAddStation} className="glass-panel p-8 rounded-3xl flex flex-col sm:flex-row gap-5 flex-wrap items-end border border-white/10 animate-in fade-in slide-in-from-top-4 shadow-2xl">
+              <form onSubmit={handleAddStation} className="glass-panel p-8 rounded-3xl flex flex-col sm:flex-row gap-5 flex-wrap items-end border border-border animate-in fade-in slide-in-from-top-4 shadow-2xl">
                 <div className="flex flex-col gap-2.5 w-full sm:w-auto flex-1">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Name</label>
-                  <input required className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.name} onChange={e => setNewStation({...newStation, name: e.target.value})} placeholder="E.g. CEpetco Townplace" />
+                  <input required className="bg-muted border border-border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.name} onChange={e => setNewStation({...newStation, name: e.target.value})} placeholder="E.g. CEpetco Townplace" />
                 </div>
                 <div className="flex flex-col gap-2.5 w-full sm:w-auto flex-1">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Address</label>
-                  <input required className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.address} onChange={e => setNewStation({...newStation, address: e.target.value})} placeholder="123 Main St, City" />
+                  <input required className="bg-muted border border-border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.address} onChange={e => setNewStation({...newStation, address: e.target.value})} placeholder="123 Main St, City" />
                 </div>
                 <div className="flex flex-col gap-2.5 w-[calc(50%-0.625rem)] sm:w-28">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Latitude</label>
-                  <input required type="number" step="any" className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.lat} onChange={e => setNewStation({...newStation, lat: e.target.value})} placeholder="6.92" />
+                  <input required type="number" step="any" className="bg-muted border border-border rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.lat} onChange={e => setNewStation({...newStation, lat: e.target.value})} placeholder="6.92" />
                 </div>
                 <div className="flex flex-col gap-2.5 w-[calc(50%-0.625rem)] sm:w-28">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Longitude</label>
-                  <input required type="number" step="any" className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.lng} onChange={e => setNewStation({...newStation, lng: e.target.value})} placeholder="79.86" />
+                  <input required type="number" step="any" className="bg-muted border border-border rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50" value={newStation.lng} onChange={e => setNewStation({...newStation, lng: e.target.value})} placeholder="79.86" />
                 </div>
                 <button type="submit" className="px-8 py-3 bg-white text-black font-extrabold tracking-wide text-sm rounded-xl hover:bg-neutral-200 transition-all w-full sm:w-auto mt-2 sm:mt-0 shadow-xl">
                   Save
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
               <div className="glass-panel overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left whitespace-nowrap">
-                    <thead className="bg-black/40 text-muted-foreground uppercase text-xs font-bold tracking-wider border-b border-white/10">
+                    <thead className="bg-muted/50 text-muted-foreground uppercase text-xs font-bold tracking-wider border-b border-border">
                       <tr>
                         <th className="px-6 py-5">Station Info</th>
                         <th className="px-6 py-5">Global Status</th>
@@ -448,7 +448,7 @@ export default function AdminDashboard() {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {stations.map(station => (
-                        <tr key={station.id} className="hover:bg-white/5 transition-colors group">
+                        <tr key={station.id} className="hover:bg-muted/50 transition-colors group">
                           <td className="px-6 py-4">
                             <div className="font-bold text-base text-foreground tracking-tight">{station.name}</div>
                             <div className="text-muted-foreground font-medium text-xs mt-1 truncate max-w-[300px]">{station.address}</div>
@@ -487,23 +487,23 @@ export default function AdminDashboard() {
           <section className="glass-panel overflow-hidden animate-in fade-in duration-500">
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="bg-black/40 text-muted-foreground uppercase text-xs font-bold tracking-wider border-b border-white/10">
+                <thead className="bg-muted/50 text-muted-foreground uppercase text-xs font-bold tracking-wider border-b border-border">
                   <tr>
-                    <th className="px-6 py-5 border-b border-white/10">Time</th>
-                    <th className="px-6 py-5 border-b border-white/10">Station Name/ID</th>
-                    <th className="px-6 py-5 border-b border-white/10">Type</th>
-                    <th className="px-6 py-5 border-b border-white/10">Value</th>
-                    <th className="px-6 py-5 border-b border-white/10">User</th>
+                    <th className="px-6 py-5 border-b border-border">Time</th>
+                    <th className="px-6 py-5 border-b border-border">Station Name/ID</th>
+                    <th className="px-6 py-5 border-b border-border">Type</th>
+                    <th className="px-6 py-5 border-b border-border">Value</th>
+                    <th className="px-6 py-5 border-b border-border">User</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {recentUpdates.map((update, i) => (
-                    <tr key={update.id || i} className="hover:bg-white/5 transition-colors">
+                    <tr key={update.id || i} className="hover:bg-muted/50 transition-colors">
                       <td className="px-6 py-4 font-mono text-xs">
                         {new Date(update.createdAt).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 font-bold text-xs truncate max-w-[200px]">
-                        {stations.find(s => s.id === update.stationId)?.name || update.stationId.substring(0, 15) + "..."}
+                        {stations.find(s => s.id === update.stationId.replace(/\//g, "-"))?.name || update.stationId.substring(0, 15) + "..."}
                       </td>
                       <td className="px-6 py-4 uppercase text-[10px] font-black tracking-widest text-muted-foreground">
                         {update.fuelType || "Queue"}
@@ -514,7 +514,7 @@ export default function AdminDashboard() {
                           update.status === "available" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
                           update.status === "low" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
                           update.status === "out" ? "bg-rose-500/10 text-rose-500 border-rose-500/20" :
-                          "bg-white/5 text-muted-foreground border-white/10"
+                          "bg-muted/50 text-muted-foreground border-border"
                         )}>
                           {(update.status || update.queueStatus || "NONE").toUpperCase()}
                         </span>

@@ -92,7 +92,7 @@ export const updateFuelStatus = async (
     }, { merge: true });
 
     await addDoc(collection(db, "updates"), {
-      stationId,
+      stationId: cleanId,
       fuelType,
       status,
       userId,
@@ -126,7 +126,7 @@ export const updateQueueStatus = async (
     }, { merge: true });
 
     await addDoc(collection(db, "updates"), {
-      stationId,
+      stationId: cleanId,
       queueStatus,
       userId,
       createdAt: now.toISOString(),

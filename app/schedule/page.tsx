@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { ArrowLeft, Car, Calendar, Info, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-
 export default function FuelSchedulePage() {
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [hasCalculated, setHasCalculated] = useState(false);
@@ -62,7 +61,7 @@ export default function FuelSchedulePage() {
           <p className="text-muted-foreground mt-1 font-medium">Check your allowed pumping dates based on Sri Lanka&apos;s plate system.</p>
         </header>
 
-        <section className="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl">
+        <section className="glass-panel p-6 sm:p-8 rounded-3xl border border-border shadow-2xl">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-3">
               <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
@@ -77,7 +76,7 @@ export default function FuelSchedulePage() {
                     setVehicleNumber(e.target.value.toUpperCase());
                     setHasCalculated(true);
                   }}
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  className="w-full bg-muted border border-border rounded-2xl px-5 py-4 text-xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all shadow-sm"
                 />
                 {lastDigit !== null && (
                   <div className={cn(
@@ -90,7 +89,7 @@ export default function FuelSchedulePage() {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex gap-4 text-sm text-muted-foreground font-medium leading-relaxed">
+            <div className="p-4 rounded-xl bg-muted/50 border border-border flex gap-4 text-sm text-muted-foreground font-medium leading-relaxed">
               <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <p>
                 In Sri Lanka, fuel is distributed based on the last digit of your vehicle frame/number plate.
@@ -118,7 +117,7 @@ export default function FuelSchedulePage() {
                       "aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 transition-all relative overflow-hidden",
                       isToday
                         ? "bg-primary border-primary shadow-[0_0_15px_-5px_rgba(59,130,246,0.5)] scale-105 z-10"
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                        : "bg-muted/50 border-border hover:bg-muted"
                     )}
                   >
                     {isToday && <div className="absolute top-1 right-1"><CheckCircle2 className="w-3 h-3 text-white" /></div>}
