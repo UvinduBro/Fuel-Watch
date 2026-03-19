@@ -1,9 +1,12 @@
 import * as admin from "firebase-admin";
 
 if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || "{}"
-  );
+  let jsonStr = (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || "{}").trim();
+  if (jsonStr.startsWith("'") && jsonStr.endsWith("'")) {
+    jsonStr = jsonStr.slice(1, -1);
+  }
+  
+  const serviceAccount = JSON.parse(jsonStr);
 
   if (serviceAccount.project_id) {
     if (serviceAccount.private_key) {
@@ -12,6 +15,9 @@ if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
+    console.log("Firebase Admin initialized successfully.");
+  } else {
+    console.error("Firebase Admin failed to initialize: Missing project_id in service account JSON.");
   }
 }
 

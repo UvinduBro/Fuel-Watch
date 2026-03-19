@@ -3,6 +3,7 @@ import { adminMessaging, adminDb } from "@/lib/firebase/admin-config";
 
 export async function POST(request: Request) {
   if (!adminMessaging || !adminDb) {
+    console.error("Firebase Admin not initialized. Check GOOGLE_APPLICATION_CREDENTIALS_JSON.");
     return NextResponse.json(
       { error: "Firebase Admin not initialized" },
       { status: 500 }
