@@ -1,14 +1,14 @@
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-sw.js');
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-sw.js');
+importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID",
+  apiKey: "AIzaSyDuYc-dqyWqSfy5YRTUuarn9JwQ095DEpQ",
+  authDomain: "fuel-watch-18be9.firebaseapp.com",
+  projectId: "fuel-watch-18be9",
+  storageBucket: "fuel-watch-18be9.firebasestorage.app",
+  messagingSenderId: "522171215763",
+  appId: "1:522171215763:web:ebb8a10aedd3738a280266",
+  measurementId: "G-ET9G35SEYW",
 });
 
 const messaging = firebase.messaging();
