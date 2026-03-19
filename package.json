@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google-analytics/data": "^5.2.1",
+    "@googlemaps/markerclusterer": "^2.6.2",
     "@react-google-maps/api": "^2.20.8",
     "clsx": "^2.1.1",
     "firebase": "^12.10.0",

@@ -79,17 +79,31 @@ export function StationCard({ station }: StationCardProps) {
             <Clock className="w-3 h-3" /> {station.isOpen ? t("station.openNow") : t("station.closed")}
           </div>
           {station.queue && (
-             <div className={cn(
-               "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-extrabold border shadow-sm backdrop-blur-md",
-               station.queue === "none" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : 
-               station.queue === "medium" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : 
-               "bg-rose-500/10 text-rose-500 border-rose-500/20"
-             )}>
-               🚦 {station.queue.toUpperCase()}
+             <div className="flex flex-col gap-1 items-end">
+               <div className={cn(
+                 "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-extrabold border shadow-sm backdrop-blur-md",
+                 station.queue === "none" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : 
+                 station.queue === "medium" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : 
+                 "bg-rose-500/10 text-rose-500 border-rose-500/20"
+               )}>
+                 🚦 {station.queue.toUpperCase()}
+               </div>
+               <div className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground opacity-70">
+                 {station.queue === "none" ? "Wait: ~5m" : station.queue === "medium" ? "Wait: ~30m" : "Wait: 1h+"}
+               </div>
              </div>
           )}
         </div>
       </div>
+
+      {/* Queue Visual Bar */}
+      {station.queue && (
+        <div className="flex gap-1 h-1.5 w-full rounded-full overflow-hidden bg-muted/30 -mt-2">
+          <div className={cn("h-full flex-1 transition-all duration-1000", (station.queue === "none" || station.queue === "medium" || station.queue === "long") ? "bg-emerald-500" : "bg-transparent")} />
+          <div className={cn("h-full flex-1 transition-all duration-1000", (station.queue === "medium" || station.queue === "long") ? "bg-amber-500" : "bg-transparent")} />
+          <div className={cn("h-full flex-1 transition-all duration-1000", (station.queue === "long") ? "bg-rose-500" : "bg-transparent")} />
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex flex-col gap-1 mt-1">

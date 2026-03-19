@@ -10,6 +10,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { SettingsToggle } from "@/components/blocks/SettingsToggle";
 import { useTranslation } from "@/lib/i18n/provider";
+import { NotificationSettings } from "@/components/blocks/NotificationSettings";
+import { AdBanner } from "@/components/blocks/AdBanner";
 
 const MapComponent = dynamic(() => import("@/components/blocks/MapComponent").then(m => m.MapComponent), {
   ssr: false,
@@ -82,6 +84,8 @@ export default function Home() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/10 rounded-full blur-[120px]" />
       </div>
 
+      <AdBanner position="top" />
+
       <header className="pt-12 pb-6 px-4 sm:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">{t("app.title")}</h1>
@@ -129,6 +133,7 @@ export default function Home() {
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-4">
+            <NotificationSettings />
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4 lg:mt-0">
               <h2 className="text-xl font-bold flex items-center gap-3">
                 {t("home.nearbyStations")}
@@ -188,6 +193,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <AdBanner position="bottom" />
     </main>
   );
 }
