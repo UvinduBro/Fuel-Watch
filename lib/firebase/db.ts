@@ -182,8 +182,15 @@ export const getAnalyticsSummary = async () => {
 
     stations.forEach(s => {
       Object.keys(distribution).forEach(fuel => {
-        const status = s.fuels[fuel as keyof typeof s.fuels]?.status || "none";
-        distribution[fuel as keyof typeof distribution][status as keyof typeof distribution['petrol92']]++;
+        // Add safety check for s.fuels
+        const fuelData = (s.fuels && s.fuels[fuel as keyof typeof s.fuels]) || { status: "none" };
+        const status = fuelData.status || "none";
+        
+        // Ensure the status is one of the keys in our distribution sub-objects
+        const validStatuses = ["available", "low", "out", "none"];
+        const normalizedStatus = validStatuses.includes(status) ? status : "none";
+        
+        distribution[fuel as keyof typeof distribution][normalizedStatus as keyof typeof distribution['petrol92']]++;
       });
     });
 
@@ -194,6 +201,15 @@ export const getAnalyticsSummary = async () => {
     };
   } catch (error) {
     console.error("Error generating analytics:", error);
-    return null;
+    return {
+      totalStations: 0,
+      totalUpdates: 0,
+      distribution: {
+        petrol92: { available: 0, low: 0, out: 0, none: 0 },
+        petrol95: { available: 0, low: 0, out: 0, none: 0 },
+        diesel: { available: 0, low: 0, out: 0, none: 0 },
+        superDiesel: { available: 0, low: 0, out: 0, none: 0 },
+      }
+    };
   }
 };

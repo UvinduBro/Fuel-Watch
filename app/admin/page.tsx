@@ -3,7 +3,7 @@
 import { useAuth, signOut } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut, Plus, Trash2, Power, Map, Globe, AlertCircle, TrendingUp, Activity, Fuel } from "lucide-react";
+import { Loader2, LogOut, Plus, Trash2, Power, Map, Globe, AlertCircle, TrendingUp, Activity, Fuel, RefreshCw } from "lucide-react";
 import { useStations } from "@/lib/hooks/useStations";
 import { cn } from "@/lib/utils";
 import { toggleStationStatus, getRecentUpdates, getAnalyticsSummary } from "@/lib/firebase/db";
@@ -117,6 +117,23 @@ export default function AdminDashboard() {
     if (window.confirm("Are you sure you want to delete this station?")) {
       await deleteDoc(doc(db, "stations", id));
       mutate();
+    }
+  };
+
+  const handleClearCache = async () => {
+    if (window.confirm("This will clear the application's data cache. The next request to public pages may be slightly slower while the cache rebuilds. Proceed?")) {
+      try {
+        const res = await fetch("/api/revalidate", { method: "POST" });
+        const data = await res.json();
+        if (data.revalidated) {
+          alert("Application cache cleared successfully!");
+        } else {
+          alert("Error clearing cache: " + data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Failed to clear cache.");
+      }
     }
   };
 
@@ -472,11 +489,11 @@ export default function AdminDashboard() {
               <table className="w-full text-sm text-left whitespace-nowrap">
                 <thead className="bg-black/40 text-muted-foreground uppercase text-xs font-bold tracking-wider border-b border-white/10">
                   <tr>
-                    <th className="px-6 py-5">Time</th>
-                    <th className="px-6 py-5">Station ID</th>
-                    <th className="px-6 py-5">Type</th>
-                    <th className="px-6 py-5">Value</th>
-                    <th className="px-6 py-5">User</th>
+                    <th className="px-6 py-5 border-b border-white/10">Time</th>
+                    <th className="px-6 py-5 border-b border-white/10">Station Name/ID</th>
+                    <th className="px-6 py-5 border-b border-white/10">Type</th>
+                    <th className="px-6 py-5 border-b border-white/10">Value</th>
+                    <th className="px-6 py-5 border-b border-white/10">User</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -485,8 +502,8 @@ export default function AdminDashboard() {
                       <td className="px-6 py-4 font-mono text-xs">
                         {new Date(update.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 font-bold text-xs">
-                        {update.stationId.substring(0, 15)}...
+                      <td className="px-6 py-4 font-bold text-xs truncate max-w-[200px]">
+                        {stations.find(s => s.id === update.stationId)?.name || update.stationId.substring(0, 15) + "..."}
                       </td>
                       <td className="px-6 py-4 uppercase text-[10px] font-black tracking-widest text-muted-foreground">
                         {update.fuelType || "Queue"}
@@ -525,31 +542,50 @@ export default function AdminDashboard() {
         )}
 
         <section className="mt-12 pt-8 border-t border-rose-500/20">
-          <div className="bg-rose-500/5 border border-rose-500/20 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col gap-1 text-center sm:text-left">
-              <h2 className="text-xl font-bold text-rose-500 flex items-center gap-2 justify-center sm:justify-start">
-                <AlertCircle className="w-5 h-5" /> Dangerous Zone
-              </h2>
-              <p className="text-muted-foreground text-sm font-medium mt-1">
-                Permanently clear all crowdsourced fuel levels, queue status, and update logs.
-              </p>
+          <div className="flex flex-col gap-6">
+            <div className="bg-rose-500/5 border border-rose-500/20 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex flex-col gap-1 text-center sm:text-left">
+                <h2 className="text-xl font-bold text-rose-500 flex items-center gap-2 justify-center sm:justify-start">
+                  <AlertCircle className="w-5 h-5" /> Dangerous Zone
+                </h2>
+                <p className="text-muted-foreground text-sm font-medium mt-1">
+                  Permanently clear all crowdsourced fuel levels, queue status, and update logs.
+                </p>
+              </div>
+              <button 
+                onClick={async () => {
+                  if (window.confirm("CRITICAL ACTION: This will permanently wipe all station updates and history. This cannot be undone. Proceed?")) {
+                      try {
+                          await import("@/lib/firebase/db").then(m => m.clearAllStationData());
+                          alert("Database cleared successfully.");
+                          mutate();
+                      } catch {
+                          alert("Error clearing data.");
+                      }
+                  }
+                }}
+                className="px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-sm rounded-xl transition-all shadow-lg flex items-center gap-2 w-full sm:w-auto justify-center"
+              >
+                <Trash2 className="w-4 h-4" /> Purge Station Data
+              </button>
             </div>
-            <button 
-              onClick={async () => {
-                if (window.confirm("CRITICAL ACTION: This will permanently wipe all station updates and history. This cannot be undone. Proceed?")) {
-                    try {
-                        await import("@/lib/firebase/db").then(m => m.clearAllStationData());
-                        alert("Database cleared successfully.");
-                        mutate();
-                    } catch {
-                        alert("Error clearing data.");
-                    }
-                }
-              }}
-              className="px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-sm rounded-xl transition-all shadow-lg flex items-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" /> Purge Station Data
-            </button>
+
+            <div className="bg-amber-500/5 border border-amber-500/20 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex flex-col gap-1 text-center sm:text-left">
+                <h2 className="text-xl font-bold text-amber-500 flex items-center gap-2 justify-center sm:justify-start">
+                  <RefreshCw className="w-5 h-5" /> Cache Control
+                </h2>
+                <p className="text-muted-foreground text-sm font-medium mt-1">
+                  Force refresh the application's static pages and data cache.
+                </p>
+              </div>
+              <button 
+                onClick={handleClearCache}
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm rounded-xl transition-all shadow-lg flex items-center gap-2 w-full sm:w-auto justify-center"
+              >
+                <RefreshCw className="w-4 h-4" /> Clear Application Cache
+              </button>
+            </div>
           </div>
         </section>
       </div>
