@@ -4,6 +4,7 @@ import Link from "next/link";
 import { MapPin, Navigation, Info, Clock, Users } from "lucide-react";
 import { FuelStatusBadge, FuelStatus } from "./FuelStatusBadge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/provider";
 
 export interface FuelMap {
   petrol92: { status: FuelStatus; lastUpdatedAt: string };
@@ -32,8 +33,6 @@ interface StationCardProps {
   station: StationData;
 }
 
-
-
 const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, lastUpdatedAt: string } }) => (
   <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
     <div className="flex items-center gap-3 font-bold text-sm text-foreground/90">
@@ -44,6 +43,8 @@ const FuelRow = ({ label, fuel }: { label: string, fuel: { status: FuelStatus, l
 );
 
 export function StationCard({ station }: StationCardProps) {
+  const { t } = useTranslation();
+
   return (
     <div className={cn(
       "glass-card rounded-2xl p-4 sm:p-5 flex flex-col gap-5 relative overflow-hidden transition-all hover:scale-[1.01] duration-300 border shadow-xl",
@@ -56,17 +57,17 @@ export function StationCard({ station }: StationCardProps) {
         <div className="flex items-center gap-2">
           {station.distance > 0 && (
             <span className="bg-black text-white dark:bg-white dark:text-black text-[10px] sm:text-xs px-2.5 py-1 rounded-full font-black tracking-wider flex items-center gap-1.5 shadow-sm">
-              <MapPin className="w-3 h-3" /> NEAREST
+              <MapPin className="w-3 h-3" /> {t("station.nearest")}
             </span>
           )}
           {station.distance > 0 && (
             <span className="bg-white/10 text-foreground text-xs px-2.5 py-1 rounded-full font-bold border border-white/10 shadow-sm backdrop-blur-md">
-              {station.distance.toFixed(1)} km away
+              {station.distance.toFixed(1)} {t("station.kmAway")}
             </span>
           )}
           {station.distance === 0 && (
              <span className="bg-white/10 text-foreground text-xs px-2.5 py-1 rounded-full font-bold border border-white/10 shadow-sm backdrop-blur-md">
-             Island-Wide
+             {t("station.islandWide")}
              </span>
           )}
         </div>
@@ -75,7 +76,7 @@ export function StationCard({ station }: StationCardProps) {
             "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-extrabold border shadow-sm backdrop-blur-md",
             station.isOpen ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"
           )}>
-            <Clock className="w-3 h-3" /> {station.isOpen ? "Open now" : "Closed"}
+            <Clock className="w-3 h-3" /> {station.isOpen ? t("station.openNow") : t("station.closed")}
           </div>
           {station.queue && (
              <div className={cn(
@@ -98,17 +99,17 @@ export function StationCard({ station }: StationCardProps) {
 
       {/* Fuel Rows */}
       <div className="flex flex-col gap-2.5 mt-2">
-        <FuelRow label="Petrol 92" fuel={station.updatedCount > 0 ? station.fuels.petrol92 : { status: "none", lastUpdatedAt: "No Data" }} />
-        <FuelRow label="Petrol 95" fuel={station.updatedCount > 0 ? station.fuels.petrol95 : { status: "none", lastUpdatedAt: "No Data" }} />
-        <FuelRow label="Diesel" fuel={station.updatedCount > 0 ? station.fuels.diesel : { status: "none", lastUpdatedAt: "No Data" }} />
-        <FuelRow label="Super Diesel" fuel={station.updatedCount > 0 ? station.fuels.superDiesel : { status: "none", lastUpdatedAt: "No Data" }} />
+        <FuelRow label={t("fuel.petrol92")} fuel={station.updatedCount > 0 ? station.fuels.petrol92 : { status: "none", lastUpdatedAt: t("station.noData") }} />
+        <FuelRow label={t("fuel.petrol95")} fuel={station.updatedCount > 0 ? station.fuels.petrol95 : { status: "none", lastUpdatedAt: t("station.noData") }} />
+        <FuelRow label={t("fuel.diesel")} fuel={station.updatedCount > 0 ? station.fuels.diesel : { status: "none", lastUpdatedAt: t("station.noData") }} />
+        <FuelRow label={t("fuel.superDiesel")} fuel={station.updatedCount > 0 ? station.fuels.superDiesel : { status: "none", lastUpdatedAt: t("station.noData") }} />
       </div>
 
       {/* Footer Details */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 pt-4 border-t border-white/10 dark:border-white/5 gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 sm:w-4 sm:w-4 text-blue-400" /> {station.updatedCount || 0} people updated this shed
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:w-4 text-blue-400" /> {station.updatedCount || 0} {t("station.peopleUpdated")}
           </div>
         </div>
         
@@ -118,14 +119,14 @@ export function StationCard({ station }: StationCardProps) {
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-bold transition-colors border border-white/10"
           >
             <Info className="w-4 h-4" />
-            Details
+            {t("station.details")}
           </Link>
           <button
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-bold transition-colors shadow-lg"
             onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(station.address)}`, "_blank")}
           >
             <Navigation className="w-4 h-4" />
-            Navigate
+            {t("station.navigate")}
           </button>
         </div>
       </div>

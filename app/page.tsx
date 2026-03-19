@@ -8,6 +8,8 @@ import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { SettingsToggle } from "@/components/blocks/SettingsToggle";
+import { useTranslation } from "@/lib/i18n/provider";
 
 const MapComponent = dynamic(() => import("@/components/blocks/MapComponent").then(m => m.MapComponent), {
   ssr: false,
@@ -15,6 +17,7 @@ const MapComponent = dynamic(() => import("@/components/blocks/MapComponent").th
 });
 
 export default function Home() {
+  const { t } = useTranslation();
   const [showOpenOnly, setShowOpenOnly] = useState(false);
   const [fuelFilter, setFuelFilter] = useState("All");
   const [availabilityFilter, setAvailabilityFilter] = useState("All Availability");
@@ -54,7 +57,6 @@ export default function Home() {
   const filteredStations = stations.filter(station => {
     const matchesOpen = showOpenOnly ? station.isOpen : true;
     
-    // Fuel Type Filter
     let matchesFuel = true;
     if (fuelFilter === "Petrol") {
       matchesFuel = station.fuels.petrol92.status !== "out" || station.fuels.petrol95.status !== "out";
@@ -62,7 +64,6 @@ export default function Home() {
       matchesFuel = station.fuels.diesel.status !== "out" || station.fuels.superDiesel.status !== "out";
     }
 
-    // Availability Filter
     let matchesAvailability = true;
     if (availabilityFilter !== "All Availability") {
       const hasAvailable = ["petrol92", "petrol95", "diesel", "superDiesel"].some(k => station.fuels[k as keyof typeof station.fuels].status === "available");
@@ -76,7 +77,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen pb-20 relative">
-      {/* Abstract Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/10 rounded-full blur-[120px]" />
@@ -84,19 +84,22 @@ export default function Home() {
 
       <header className="pt-12 pb-6 px-4 sm:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Fuel Watch</h1>
-          <p className="text-muted-foreground mt-1">Real-time crowdsourced fuel availability</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">{t("app.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("app.subtitle")}</p>
         </div>
-        <div className="flex items-center gap-3 mt-4 sm:mt-0">
-          <Link href="/pass" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
-            Wallet Pass
-          </Link>
-          <Link href="/schedule" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
-            Fuel Schedule
-          </Link>
-          <Link href="/stations" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
-            All Stations
-          </Link>
+        <div className="flex flex-col items-end gap-3 mt-4 sm:mt-0">
+          <SettingsToggle />
+          <div className="flex items-center gap-3">
+            <Link href="/pass" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
+              {t("nav.walletPass")}
+            </Link>
+            <Link href="/schedule" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
+              {t("nav.fuelSchedule")}
+            </Link>
+            <Link href="/stations" className="px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-bold transition-all border border-white/10 hover:border-white/20 shadow-sm flex items-center gap-2">
+              {t("nav.allStations")}
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -114,52 +117,53 @@ export default function Home() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Map Column */}
           <div className="lg:col-span-3 h-[400px] lg:h-[calc(100vh-250px)] lg:sticky lg:top-28">
             {geoLoading ? (
               <div className="w-full h-full glass-panel flex flex-col items-center justify-center text-muted-foreground gap-4">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                <span className="text-sm font-medium">Acquiring position...</span>
+                <span className="text-sm font-medium">{t("map.acquiring")}</span>
               </div>
             ) : (
               <MapComponent stations={filteredStations} userLocation={location} />
             )}
           </div>
 
-          {/* List Column */}
           <div className="lg:col-span-2 flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4 lg:mt-0">
               <h2 className="text-xl font-bold flex items-center gap-3">
-                Nearby Stations
+                {t("home.nearbyStations")}
                 <span className="text-xs font-semibold text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
-                  {filteredStations.length} found
+                  {filteredStations.length} {t("home.found")}
                 </span>
               </h2>
             </div>
 
-            {/* List Filters */}
             <div className="flex flex-col gap-2.5 mb-2 mt-1">
-              <span className="text-xs font-bold text-muted-foreground">Filter</span>
+              <span className="text-xs font-bold text-muted-foreground">{t("filter.filter")}</span>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex items-center gap-2 bg-black/20 p-1 rounded-full border border-white/5 w-fit">
-                  {["All", "Petrol", "Diesel"].map(f => (
+                <div className="flex items-center gap-2 bg-black/20 dark:bg-black/20 p-1 rounded-full border border-white/5 w-fit">
+                  {[
+                    { key: "All", label: t("fuel.all") },
+                    { key: "Petrol", label: t("fuel.petrol") },
+                    { key: "Diesel", label: t("fuel.diesel") },
+                  ].map(f => (
                     <button
-                      key={f}
-                      onClick={() => setFuelFilter(f)}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${fuelFilter === f ? 'bg-white/10 text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+                      key={f.key}
+                      onClick={() => setFuelFilter(f.key)}
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${fuelFilter === f.key ? 'bg-white/10 text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
                     >
-                      {f}
+                      {f.label}
                     </button>
                   ))}
                 </div>
                 <select
                   value={availabilityFilter}
                   onChange={(e) => setAvailabilityFilter(e.target.value)}
-                  className="bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 h-8 w-fit"
+                  className="bg-black/40 dark:bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 h-8 w-fit"
                 >
-                  <option value="All Availability">All Availability</option>
-                  <option value="Available">Available</option>
-                  <option value="Low Stock">Low Stock</option>
+                  <option value="All Availability">{t("availability.all")}</option>
+                  <option value="Available">{t("availability.available")}</option>
+                  <option value="Low Stock">{t("availability.lowStock")}</option>
                 </select>
               </div>
             </div>
@@ -172,7 +176,7 @@ export default function Home() {
               </div>
             ) : filteredStations.length === 0 ? (
               <div className="glass-panel p-8 text-center flex flex-col items-center justify-center border-dashed border-white/20">
-                <p className="text-muted-foreground font-medium">No stations found matching your criteria.</p>
+                <p className="text-muted-foreground font-medium">{t("home.noStations")}</p>
               </div>
             ) : (
               <div className="flex flex-col gap-4 h-full lg:overflow-y-auto pb-10 custom-scrollbar">
