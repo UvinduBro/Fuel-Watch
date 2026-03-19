@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 interface GAData {
   configured: boolean;
   message?: string;
+  error?: string;
   summary: { totalUsers: number; totalPageviews: number; totalSessions: number; avgSessionDuration: number };
   topPages: { page: string; views: number; users: number }[];
   dailyUsers: { date: string; users: number; pageviews: number }[];
@@ -37,10 +38,10 @@ export function AnalyticsTab() {
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
 
-  if (error || (data && !(data as any).configured && (data as any).error)) return (
+  if (error || (data && !data.configured && data.error)) return (
     <div className="glass-panel p-8 rounded-3xl text-center border border-rose-500/30 bg-rose-500/5">
       <p className="text-rose-400 font-bold mb-2">Failed to load analytics</p>
-      <p className="text-rose-400/80 text-xs font-mono break-all">{error || (data as any)?.error}</p>
+      <p className="text-rose-400/80 text-xs font-mono break-all">{error || data?.error}</p>
     </div>
   );
 
