@@ -96,6 +96,7 @@ export function AdManagement() {
         {ads.map(ad => (
           <div key={ad.id} className="glass-panel p-5 rounded-3xl border border-border flex flex-col gap-4 group">
             <div className="relative aspect-[3/1] rounded-xl overflow-hidden border border-white/5 bg-muted">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={ad.imageUrl} alt="Ad Preview" className="w-full h-full object-cover" />
               <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/60 text-[8px] font-black text-white uppercase tracking-wider backdrop-blur-md">
                 Preview ({ad.position.toUpperCase()})
