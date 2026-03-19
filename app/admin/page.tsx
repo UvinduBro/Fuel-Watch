@@ -576,7 +576,7 @@ export default function AdminDashboard() {
                   <RefreshCw className="w-5 h-5" /> Cache Control
                 </h2>
                 <p className="text-muted-foreground text-sm font-medium mt-1">
-                  Force refresh the application's static pages and data cache.
+                  Force refresh the application&apos;s static pages and data cache.
                 </p>
               </div>
               <button 
