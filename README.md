@@ -2,7 +2,7 @@
 
 Fuel Watch is a modern, crowdsourced fuel availability platform designed for Sri Lanka. It allows users to quickly locate nearby fuel stations via an interactive Google Map, check real-time availability of fuel types, and contribute status updates to help the community navigate fuel shortages.
 
-Developed for transparency and efficiency, Fuel Watch combines cutting-edge web technology with a "community-first" approach.
+Developed for transparency and efficiency, Fuel Watch combines cutting-edge web technology with a "community-first" approach..
 
 ---
 
